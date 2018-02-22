@@ -1,5 +1,53 @@
-dist/
+# Node
+node_modules/*
+npm-debug.log
 
+# TypeScript
+src/*.js
+src/*.map
+src/*.d.ts
+
+# Python
+*.pyc
+
+# JetBrains
+.idea
+.project
+.settings
+.idea/*
+*.iml
+
+# VS Code
+.vscode/*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Mac
+.DS_Store
+**/.DS_Store
+UserInterfaceState.xcuserstate
+.env
+$RECYCLE.BIN/
+
+# SCSS / SASS
+.sass-cache/
+
+# Ngc generated files
+**/*.ngfactory.ts
+
+# Build files
+dist/*
+build/*
+
+# Misc
+yarn-error.log
+.versions/
 *~
 *.sw[mnpcod]
 *.log
@@ -7,17 +55,4 @@ dist/
 *.tmp
 *.tmp.*
 log.txt
-*.sublime-project
-*.sublime-workspace
 
-.idea/
-.vscode/
-.sass-cache/
-.versions/
-node_modules/
-$RECYCLE.BIN/
-
-.DS_Store
-Thumbs.db
-UserInterfaceState.xcuserstate
-.env
