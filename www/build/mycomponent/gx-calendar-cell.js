@@ -28,7 +28,7 @@ class GxCalendarCell {
     static get is() { return "gx-calendar-cell"; }
     static get properties() { return { "badgeTotal": { "state": true }, "date": { "state": true }, "day": { "state": true }, "locale": { "type": String, "attr": "locale" }, "openDay": { "type": "Any", "attr": "open-day" }, "tooltipPlacement": { "type": String, "attr": "tooltip-placement" } }; }
     static get events() { return [{ "name": "highlightDay", "method": "highlightDay", "bubbles": true, "cancelable": true, "composed": true }, { "name": "unhighlightDay", "method": "unhighlightDay", "bubbles": true, "cancelable": true, "composed": true }, { "name": "eventClicked", "method": "eventClicked", "bubbles": true, "cancelable": true, "composed": true }]; }
-    static get style() { return ""; }
+    static get style() { return ".cal-cell-top {\n  min-height: 78px;\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n}\n.cal-day-badge {\n  margin-top: 18px;\n  margin-left: 10px;\n  background-color: #b94a48;\n  display: inline-block;\n  min-width: 10px;\n  padding: 3px 7px;\n  font-size: 12px;\n  font-weight: 700;\n  line-height: 1;\n  color: white;\n  text-align: center;\n  white-space: nowrap;\n  vertical-align: middle;\n  border-radius: 10px;\n}"; }
 }
 
 export { GxCalendarCell };
