@@ -1,0 +1,15 @@
+{
+  "namespace": "mycomponent",
+  "fsNamespace": "mycomponent",
+  "loader": "../mycomponent.js",
+  "core": "mycomponent.core.js",
+  "corePolyfilled": "es5-build-disabled.js",
+  "components": {
+    "gx-calendar-cell": {
+      "$": "gx-calendar-cell"
+    },
+    "my-component": {
+      "$": "my-component"
+    }
+  }
+}

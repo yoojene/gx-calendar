@@ -4,6 +4,9 @@
  * and imports for stencil collections that might be configured in your stencil.config.js file
  */
 
+import {
+  MonthViewDay,
+} from './components/gx-calendar-cell/gx-calendar-cell';
 
 declare global {
   interface HTMLStencilElement extends HTMLElement {
@@ -12,6 +15,38 @@ declare global {
   }
 }
 
+
+
+import {
+  GxCalendarCell as GxCalendarCell
+} from './components/gx-calendar-cell/gx-calendar-cell';
+
+declare global {
+  interface HTMLGxCalendarCellElement extends GxCalendarCell, HTMLStencilElement {
+  }
+  var HTMLGxCalendarCellElement: {
+    prototype: HTMLGxCalendarCellElement;
+    new (): HTMLGxCalendarCellElement;
+  };
+  interface HTMLElementTagNameMap {
+    "gx-calendar-cell": HTMLGxCalendarCellElement;
+  }
+  interface ElementTagNameMap {
+    "gx-calendar-cell": HTMLGxCalendarCellElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      "gx-calendar-cell": JSXElements.GxCalendarCellAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface GxCalendarCellAttributes extends HTMLAttributes {
+      locale?: string;
+      openDay?: MonthViewDay;
+      tooltipPlacement?: string;
+    }
+  }
+}
 
 
 import {
