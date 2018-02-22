@@ -56,7 +56,8 @@ export interface MonthViewDay extends WeekDay {
   // shadow: true,
 })
 export class GxCalendarCell {
-  @State() day: MonthViewDay;
+  // @State() day: MonthViewDay;
+  @Prop() day: any;
 
   @State() date: any;
   @State() badgeTotal: number;
@@ -72,6 +73,9 @@ export class GxCalendarCell {
   @Event() eventClicked: EventEmitter;
 
   componentDidLoad() {
+    console.log(this.day);
+    console.log(this.day.date);
+
     this.date = new Date().toDateString(); // Wouldn't render PODO
     this.badgeTotal = 50;
 

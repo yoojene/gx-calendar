@@ -5,15 +5,21 @@ import {
   EventEmitter,
   // State,
   Method,
+  // State,
 } from '@stencil/core';
 
 import {
   CalendarEvent,
   WeekDay,
   MonthViewDay,
+  // MonthView,
+  EVENTS,
   MonthView,
+  // GetMonthViewArgs,
 } from '../../model/gx-calendar';
-import { GxCalendarUtils } from '../providers/gx-calendar-utils.provider';
+
+import { startOfDay, addDays } from 'date-fns';
+// import { GxCalendarUtils } from '../providers/gx-calendar-utils.provider';
 
 @Component({
   tag: 'gx-calendar-month-view',
@@ -24,17 +30,21 @@ export class GxCalendarMonthView {
   /**
    * The current view date
    */
-  @Prop() viewDate: Date;
+  // @Prop()
+  viewDate: Date = new Date();
 
   /**
    * An array of events to display on view
    */
-  @Prop() events: CalendarEvent[] = [];
+  // @Prop()
+  // events: CalendarEvent[] = [];
+  events: CalendarEvent[] = EVENTS;
 
   /**
    * An array of day indexes (0 = sunday, 1 = monday etc) that will be hidden on the view
    */
-  @Prop() excludeDays: number[] = [];
+  //@Prop()
+  excludeDays: number[] = [];
 
   /**
    * Whether the events list for the day of the `viewDate` option is visible or not
@@ -65,7 +75,8 @@ export class GxCalendarMonthView {
   /**
    * The start number of the week
    */
-  @Prop() weekStartsOn: number;
+  //@Prop()
+  weekStartsOn: number = 1;
 
   /**
    * Called when the day cell is clicked
@@ -95,7 +106,23 @@ export class GxCalendarMonthView {
   /**
    * @hidden
    */
-  view: MonthView;
+  view: MonthView = (this.view = {
+    events: this.events,
+    viewDate: this.viewDate,
+    weekStartsOn: this.weekStartsOn,
+    excluded: this.excludeDays,
+    days: [
+      {
+        date: addDays(startOfDay(new Date()), 4),
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 1,
+      },
+    ],
+  });
 
   /**
    * @hidden
@@ -112,34 +139,46 @@ export class GxCalendarMonthView {
    */
   // refreshSubscription: Subscription;
 
-  constructor(private gmv: GxCalendarUtils) {}
+  // constructor(private gmv: GxCalendarUtils) {}
 
   componentDidLoad() {
     console.log((this.viewDate = new Date()));
+    // this.view;
     this.refreshBody();
   }
 
   @Method()
   refreshBody(): void {
     console.log('refreshing body');
-    this.view = this.gmv.getMonthView({
-      events: this.events,
-      viewDate: this.viewDate,
-      weekStartsOn: this.weekStartsOn,
-      excluded: this.excludeDays,
-    });
+
     console.log(this.view);
-    if (this.dayModifier) {
-      this.view.days.forEach(day => this.dayModifier(day));
-    }
+    // console.log(this.dayModifier);
+    // if (this.dayModifier) {
+    //   console.log('here');
+    //   this.view.days.forEach(day => this.dayModifier(day));
+    // }
   }
+
+  // getMonthView(args: GetMonthViewArgs): MonthView {
+  //   console.log(args);
+  //   for (let x = 0; x < 2; x++) {
+  //     return this.getMonthView(args);
+  //   }
+  // }
 
   render() {
     return (
-      <div class="cal-days">
-        Hello
-        <div class="cal-cell-row">
-          <gx-calendar-cell />
+      <div class="cal-month-view">
+        <div class="cal-days">
+          Hello
+          <div class="cal-cell-row">
+            {this.view.days.map(day => (
+              <div>
+                {/* {day} */}
+                <gx-calendar-cell day={day} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );

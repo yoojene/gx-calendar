@@ -7,9 +7,6 @@
 import {
   MonthViewDay,
 } from './components/gx-calendar-cell/gx-calendar-cell';
-import {
-  CalendarEvent,
-} from './model/gx-calendar';
 
 declare global {
   interface HTMLStencilElement extends HTMLElement {
@@ -44,6 +41,7 @@ declare global {
   }
   namespace JSXElements {
     export interface GxCalendarCellAttributes extends HTMLAttributes {
+      day?: any;
       locale?: string;
       openDay?: MonthViewDay;
       tooltipPlacement?: string;
@@ -78,12 +76,8 @@ declare global {
     export interface GxCalendarMonthViewAttributes extends HTMLAttributes {
       activeDayIsOpen?: boolean;
       dayModifier?: Function;
-      events?: CalendarEvent[];
-      excludeDays?: number[];
       locale?: string;
       tooltipPlacement?: string;
-      viewDate?: Date;
-      weekStartsOn?: number;
     }
   }
 }
