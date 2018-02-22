@@ -1,4 +1,11 @@
-import { Component, Prop, Event, EventEmitter, State } from '@stencil/core';
+import {
+  Component,
+  Prop,
+  Event,
+  EventEmitter,
+  State,
+  Method,
+} from '@stencil/core';
 
 export interface EventColor {
   primary: string;
@@ -71,7 +78,6 @@ export class GxCalendarCell {
     console.log(this.date);
 
     // TODO Find out if can render object props in JSX/TSX
-
     // this.day = {
     //   date: new Date(),
     //   isPast: false,
@@ -86,12 +92,26 @@ export class GxCalendarCell {
     // this.day.date = new Date();
   }
 
+  @Method()
+  onEventClick(mouseEvent: MouseEvent, calendarEvent: CalendarEvent): void {
+    console.log('clicked');
+    if (mouseEvent.stopPropagation) {
+      mouseEvent.stopPropagation();
+    }
+    this.eventClicked.emit({ event: calendarEvent });
+  }
+
   render() {
     return (
       <div class="cal-cell-top">
         {this.badgeTotal ? (
           <div>
-            <span class="cal-day-badge">{this.badgeTotal}</span>{' '}
+            <span
+              class="cal-day-badge"
+              onClick={e => this.onEventClick(e, this.date)}
+            >
+              {this.badgeTotal}
+            </span>{' '}
             <span class="cal-day-number">{this.date}</span>
           </div>
         ) : (

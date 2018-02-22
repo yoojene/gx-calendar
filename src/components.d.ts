@@ -7,6 +7,9 @@
 import {
   MonthViewDay,
 } from './components/gx-calendar-cell/gx-calendar-cell';
+import {
+  CalendarEvent,
+} from './model/gx-calendar';
 
 declare global {
   interface HTMLStencilElement extends HTMLElement {
@@ -44,6 +47,43 @@ declare global {
       locale?: string;
       openDay?: MonthViewDay;
       tooltipPlacement?: string;
+    }
+  }
+}
+
+
+import {
+  GxCalendarMonthView as GxCalendarMonthView
+} from './components/gx-calendar-month-view/gx-calendar-month-view';
+
+declare global {
+  interface HTMLGxCalendarMonthViewElement extends GxCalendarMonthView, HTMLStencilElement {
+  }
+  var HTMLGxCalendarMonthViewElement: {
+    prototype: HTMLGxCalendarMonthViewElement;
+    new (): HTMLGxCalendarMonthViewElement;
+  };
+  interface HTMLElementTagNameMap {
+    "gx-calendar-month-view": HTMLGxCalendarMonthViewElement;
+  }
+  interface ElementTagNameMap {
+    "gx-calendar-month-view": HTMLGxCalendarMonthViewElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      "gx-calendar-month-view": JSXElements.GxCalendarMonthViewAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface GxCalendarMonthViewAttributes extends HTMLAttributes {
+      activeDayIsOpen?: boolean;
+      dayModifier?: Function;
+      events?: CalendarEvent[];
+      excludeDays?: number[];
+      locale?: string;
+      tooltipPlacement?: string;
+      viewDate?: Date;
+      weekStartsOn?: number;
     }
   }
 }
