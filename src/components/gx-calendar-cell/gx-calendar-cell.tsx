@@ -76,7 +76,9 @@ export class GxCalendarCell {
     console.log(this.day);
     console.log(this.day.date);
 
-    this.date = new Date().toDateString(); // Wouldn't render PODO
+    this.day.date = this.day.date.toDateString();
+
+    // this.date = new Date().toDateString(); // Wouldn't render PODO
     this.badgeTotal = 50;
 
     console.log(this.date);
@@ -112,14 +114,14 @@ export class GxCalendarCell {
           <div>
             <span
               class="cal-day-badge"
-              onClick={e => this.onEventClick(e, this.date)}
+              onClick={e => this.onEventClick(e, this.day.date)}
             >
               {this.badgeTotal}
             </span>{' '}
-            <span class="cal-day-number">{this.date}</span>
+            <span class="cal-day-number">{this.day.date}</span>
           </div>
         ) : (
-          <span class="cal-day-number">{this.date}</span>
+          <span class="cal-day-number">{this.day.date}</span>
         )}
       </div>
     );

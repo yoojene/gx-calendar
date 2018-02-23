@@ -113,7 +113,25 @@ export class GxCalendarMonthView {
     excluded: this.excludeDays,
     days: [
       {
-        date: addDays(startOfDay(new Date()), 4),
+        date: addDays(startOfDay(new Date()), 1),
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 1,
+      },
+      {
+        date: addDays(startOfDay(new Date()), 2),
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 1,
+      },
+      {
+        date: addDays(startOfDay(new Date()), 3),
         isPast: false,
         isToday: false,
         isFuture: true,
@@ -169,6 +187,17 @@ export class GxCalendarMonthView {
   render() {
     return (
       <div class="cal-month-view">
+        <div class="cal-cell-row cal-header">
+          {this.view.days.map(day => (
+            <div class="cal-cell">
+              {/* // *ngFor="let day of days" // [class.cal-past]="day.isPast" //
+              [class.cal-today]="day.isToday" //
+              [class.cal-future]="day.isFuture" //
+              [class.cal-weekend]="day.isWeekend"> */}
+              {day.date}
+            </div>
+          ))}
+        </div>
         <div class="cal-days">
           Hello
           <div class="cal-cell-row">
