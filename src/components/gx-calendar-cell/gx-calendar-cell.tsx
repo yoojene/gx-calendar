@@ -6,6 +6,7 @@ import {
   State,
   Method,
 } from '@stencil/core';
+import moment from 'moment';
 
 export interface EventColor {
   primary: string;
@@ -114,7 +115,9 @@ export class GxCalendarCell {
             >
               {this.day.badgeTotal}
             </span>{' '}
-            <span class="cal-day-number">{this.day.date}</span>
+            <span class="cal-day-number">
+              {moment(this.day.date).format('D')}
+            </span>
           </div>
         ) : (
           <span class="cal-day-number">{this.day.date}</span>

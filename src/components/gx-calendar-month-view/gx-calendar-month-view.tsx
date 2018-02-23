@@ -108,6 +108,7 @@ export class GxCalendarMonthView {
    * @hidden
    */
   view: MonthView = (this.view = {
+    rowOffsets: [0, 7, 14, 21, 28],
     events: this.events,
     viewDate: this.viewDate,
     weekStartsOn: this.weekStartsOn,
@@ -133,6 +134,51 @@ export class GxCalendarMonthView {
       },
       {
         date: addDays(startOfDay(new Date()), 3),
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 3,
+      },
+      {
+        date: addDays(startOfDay(new Date()), 4),
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 3,
+      },
+      {
+        date: addDays(startOfDay(new Date()), 5),
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 3,
+      },
+      {
+        date: addDays(startOfDay(new Date()), 6),
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 3,
+      },
+      {
+        date: addDays(startOfDay(new Date()), 7),
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 3,
+      },
+      {
+        date: addDays(startOfDay(new Date()), 8),
         isPast: false,
         isToday: false,
         isFuture: true,
@@ -171,6 +217,7 @@ export class GxCalendarMonthView {
   @Method()
   refreshBody(): void {
     console.log('refreshing body');
+    console.log(this.view.days);
   }
 
   render() {
@@ -192,14 +239,31 @@ export class GxCalendarMonthView {
           ))}
         </div>
         <div class="cal-days">
+          {/* {this.view.rowOffsets.map(() => ( */}
           <div class="cal-cell-row">
-            {this.view.days.map(day => (
-              <div>
-                {/* {day} */}
-                <gx-calendar-cell day={day} />
-              </div>
-            ))}
+            {this.view.days.map((day, i) => {
+              if (i % 7 === 0) {
+                return (
+                  <div>
+                    <div>
+                      <gx-calendar-cell day={day} />
+                    </div>
+                    <br />
+                    <div>
+                      <gx-calendar-cell day={day} />
+                    </div>
+                  </div>
+                );
+              } else {
+                return (
+                  <div>
+                    <gx-calendar-cell day={day} />
+                  </div>
+                );
+              }
+            })}
           </div>
+          {/* ))} */}
         </div>
       </div>
     );
