@@ -76,13 +76,9 @@ export class GxCalendarCell {
     console.log(this.day);
     console.log(this.day.date);
 
-    this.day.date = this.day.date.toDateString();
+    this.day.date = this.day.date.toDateString(); // Wouldn't render PODO
 
-    // this.date = new Date().toDateString(); // Wouldn't render PODO
     this.badgeTotal = 50;
-
-    console.log(this.date);
-
     // TODO Find out if can render object props in JSX/TSX
     // this.day = {
     //   date: new Date(),
@@ -116,7 +112,7 @@ export class GxCalendarCell {
               class="cal-day-badge"
               onClick={e => this.onEventClick(e, this.day.date)}
             >
-              {this.badgeTotal}
+              {this.day.badgeTotal}
             </span>{' '}
             <span class="cal-day-number">{this.day.date}</span>
           </div>

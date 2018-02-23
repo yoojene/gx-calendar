@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "@stencil/core": "^0.6.1",
-    "date-fns": "1.29.0"
+    "date-fns": "1.29.0",
+    "moment": "2.20.1"
   },
   "devDependencies": {
     "@stencil/dev-server": "latest",

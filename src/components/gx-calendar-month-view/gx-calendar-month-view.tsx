@@ -19,6 +19,7 @@ import {
 } from '../../model/gx-calendar';
 
 import { startOfDay, addDays } from 'date-fns';
+import moment from 'moment';
 // import { GxCalendarUtils } from '../providers/gx-calendar-utils.provider';
 
 @Component({
@@ -128,7 +129,7 @@ export class GxCalendarMonthView {
         isFuture: true,
         inMonth: true,
         isWeekend: false,
-        badgeTotal: 1,
+        badgeTotal: 2,
       },
       {
         date: addDays(startOfDay(new Date()), 3),
@@ -137,7 +138,7 @@ export class GxCalendarMonthView {
         isFuture: true,
         inMonth: true,
         isWeekend: false,
-        badgeTotal: 1,
+        badgeTotal: 3,
       },
     ],
   });
@@ -161,45 +162,36 @@ export class GxCalendarMonthView {
 
   componentDidLoad() {
     console.log((this.viewDate = new Date()));
-    // this.view;
-    this.refreshBody();
+    // this.refreshBody();
   }
+
+  @Method()
+  refreshHeader(): void {}
 
   @Method()
   refreshBody(): void {
     console.log('refreshing body');
-
-    console.log(this.view);
-    // console.log(this.dayModifier);
-    // if (this.dayModifier) {
-    //   console.log('here');
-    //   this.view.days.forEach(day => this.dayModifier(day));
-    // }
   }
-
-  // getMonthView(args: GetMonthViewArgs): MonthView {
-  //   console.log(args);
-  //   for (let x = 0; x < 2; x++) {
-  //     return this.getMonthView(args);
-  //   }
-  // }
 
   render() {
     return (
       <div class="cal-month-view">
         <div class="cal-cell-row cal-header">
           {this.view.days.map(day => (
-            <div class="cal-cell">
-              {/* // *ngFor="let day of days" // [class.cal-past]="day.isPast" //
-              [class.cal-today]="day.isToday" //
-              [class.cal-future]="day.isFuture" //
-              [class.cal-weekend]="day.isWeekend"> */}
-              {day.date}
+            <div
+              class={{
+                'cal-cell': true,
+                'cal-past': day.isPast,
+                'cal-today': day.isToday,
+                'cal-future': day.isFuture,
+                'cal-weekend': day.isWeekend,
+              }}
+            >
+              {moment(day.date).format('ddd')}
             </div>
           ))}
         </div>
         <div class="cal-days">
-          Hello
           <div class="cal-cell-row">
             {this.view.days.map(day => (
               <div>
