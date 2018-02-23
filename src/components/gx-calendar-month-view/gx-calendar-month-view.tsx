@@ -239,31 +239,15 @@ export class GxCalendarMonthView {
           ))}
         </div>
         <div class="cal-days">
-          {/* {this.view.rowOffsets.map(() => ( */}
-          <div class="cal-cell-row">
-            {this.view.days.map((day, i) => {
-              if (i % 7 === 0) {
-                return (
-                  <div>
-                    <div>
-                      <gx-calendar-cell day={day} />
-                    </div>
-                    <br />
-                    <div>
-                      <gx-calendar-cell day={day} />
-                    </div>
-                  </div>
-                );
-              } else {
-                return (
-                  <div>
-                    <gx-calendar-cell day={day} />
-                  </div>
-                );
-              }
-            })}
-          </div>
-          {/* ))} */}
+          {this.view.rowOffsets.map(() => (
+            <div class="cal-cell-row">
+              {this.view.days.map(day => (
+                <div>
+                  <gx-calendar-cell day={day} />
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     );
