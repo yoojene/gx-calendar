@@ -8,6 +8,9 @@
     "gx-calendar-cell": {
       "$": "gx-calendar-cell"
     },
+    "gx-calendar-month-view": {
+      "$": "gx-calendar-cell"
+    },
     "my-component": {
       "$": "my-component"
     }

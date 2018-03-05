@@ -184,7 +184,16 @@ export class GxCalendarMonthView {
         isFuture: true,
         inMonth: true,
         isWeekend: false,
-        badgeTotal: 3,
+        badgeTotal: 5,
+      },
+      {
+        date: addDays(startOfDay(new Date()), 9),
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 10,
       },
     ],
   });
@@ -224,28 +233,32 @@ export class GxCalendarMonthView {
     return (
       <div class="cal-month-view">
         <div class="cal-cell-row cal-header">
-          {this.view.days.map(day => (
-            <div
-              class={{
-                'cal-cell': true,
-                'cal-past': day.isPast,
-                'cal-today': day.isToday,
-                'cal-future': day.isFuture,
-                'cal-weekend': day.isWeekend,
-              }}
-            >
-              {moment(day.date).format('ddd')}
-            </div>
-          ))}
+          {this.view.days
+            .map(day => (
+              <div
+                class={{
+                  'cal-cell': true,
+                  'cal-past': day.isPast,
+                  'cal-today': day.isToday,
+                  'cal-future': day.isFuture,
+                  'cal-weekend': day.isWeekend,
+                }}
+              >
+                {moment(day.date).format('ddd')}
+              </div>
+            ))
+            .slice(0, 7)}
         </div>
         <div class="cal-days">
-          {this.view.rowOffsets.map(() => (
+          {this.view.rowOffsets.map(rowIdx => (
             <div class="cal-cell-row">
-              {this.view.days.map(day => (
-                <div>
-                  <gx-calendar-cell day={day} />
-                </div>
-              ))}
+              {this.view.days
+                .map(day => (
+                  <div>
+                    <gx-calendar-cell day={day} />
+                  </div>
+                ))
+                .slice(rowIdx, rowIdx + 7)}
             </div>
           ))}
         </div>

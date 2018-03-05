@@ -720,9 +720,15 @@ var s=document.querySelector("script[data-namespace='mycomponent']");if(s){publi
             definePropertyGetterSetter(instance, memberName, getComponentProp, setComponentProp);
     } else {
       false;
-      false;
-      false;
-      false;
+      if (true, property.method) {
+        // @Method()
+        // add a property "value" on the host element
+        // which we'll bind to the instance's method
+        definePropertyValue(elm, memberName, instance[memberName].bind(instance));
+      } else {
+        false;
+        false;
+      }
     }
   }
   function setValue(plt, elm, memberName, newVal, values, instance, watchMethods) {

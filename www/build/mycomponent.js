@@ -63,4 +63,4 @@ function supportsCssVariables(win) {
 
 init(win, doc, doc.scripts, appNamespace, urlNamespace, publicPath, discoverPublicPath, appCore, appCoreSsr, appCorePolyfilled, hydratedCssClass, components);
 
-})(window, document, "mycomponent","mycomponent","/build/mycomponent/",true,"mycomponent.core.js","es5-build-disabled.js","hydrated",[["gx-calendar-cell","gx-calendar-cell",1,[["badgeTotal",5],["date",5],["day",5],["locale",1,1,2],["openDay",1],["tooltipPlacement",1,"tooltip-placement",2]]],["my-component","my-component",1,[["first",1,1,2],["last",1,1,2]],1]]);
+})(window, document, "mycomponent","mycomponent","/build/mycomponent/",true,"mycomponent.core.js","es5-build-disabled.js","hydrated",[["gx-calendar-cell","gx-calendar-cell",1,[["badgeTotal",5],["date",5],["day",1,1,1],["locale",1,1,2],["onEventClick",6],["openDay",1],["tooltipPlacement",1,"tooltip-placement",2]]],["gx-calendar-month-view","gx-calendar-cell",1,[["activeDayIsOpen",1,"active-day-is-open",3],["dayModifier",1],["locale",1,1,2],["refreshBody",6],["refreshHeader",6],["tooltipPlacement",1,"tooltip-placement",2]]],["my-component","my-component",1,[["first",1,1,2],["last",1,1,2]],1]]);
