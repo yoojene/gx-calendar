@@ -115,6 +115,15 @@ export class GxCalendarMonthView {
     excluded: this.excludeDays,
     days: [
       {
+        date: this.viewDate,
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 100,
+      },
+      {
         date: addDays(startOfDay(new Date()), 1),
         isPast: false,
         isToday: false,
@@ -193,7 +202,7 @@ export class GxCalendarMonthView {
         isFuture: true,
         inMonth: true,
         isWeekend: false,
-        badgeTotal: 10,
+        badgeTotal: 15,
       },
     ],
   });

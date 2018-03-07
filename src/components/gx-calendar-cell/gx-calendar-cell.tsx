@@ -120,7 +120,9 @@ export class GxCalendarCell {
             </span>
           </div>
         ) : (
-          <span class="cal-day-number">{this.day.date}</span>
+          <span class="cal-day-number">
+            {moment(this.day.date).format('D')}
+          </span>
         )}
       </div>
     );

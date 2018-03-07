@@ -4556,7 +4556,7 @@ class GxCalendarCell {
         return (h("div", { class: "cal-cell-top" }, this.badgeTotal ? (h("div", null,
             h("span", { class: "cal-day-badge", onClick: e => this.onEventClick(e, this.day.date) }, this.day.badgeTotal),
             ' ',
-            h("span", { class: "cal-day-number" }, hooks(this.day.date).format('D')))) : (h("span", { class: "cal-day-number" }, this.day.date))));
+            h("span", { class: "cal-day-number" }, hooks(this.day.date).format('D')))) : (h("span", { class: "cal-day-number" }, hooks(this.day.date).format('D')))));
     }
     static get is() { return "gx-calendar-cell"; }
     static get properties() { return { "badgeTotal": { "state": true }, "date": { "state": true }, "day": { "type": "Any", "attr": "day" }, "locale": { "type": String, "attr": "locale" }, "onEventClick": { "method": true }, "openDay": { "type": "Any", "attr": "open-day" }, "tooltipPlacement": { "type": String, "attr": "tooltip-placement" } }; }
@@ -10270,6 +10270,15 @@ class GxCalendarMonthView {
             excluded: this.excludeDays,
             days: [
                 {
+                    date: this.viewDate,
+                    isPast: false,
+                    isToday: false,
+                    isFuture: true,
+                    inMonth: true,
+                    isWeekend: false,
+                    badgeTotal: 100,
+                },
+                {
                     date: dateFns_1(dateFns_132(new Date()), 1),
                     isPast: false,
                     isToday: false,
@@ -10348,7 +10357,7 @@ class GxCalendarMonthView {
                     isFuture: true,
                     inMonth: true,
                     isWeekend: false,
-                    badgeTotal: 10,
+                    badgeTotal: 15,
                 },
             ],
         });
