@@ -18,7 +18,7 @@ import {
   // GetMonthViewArgs,
 } from '../../model/gx-calendar';
 
-import { startOfDay, addDays } from 'date-fns';
+// import { startOfDay, addDays } from 'date-fns';
 import moment from 'moment';
 // import { GxCalendarUtils } from '../providers/gx-calendar-utils.provider';
 
@@ -113,98 +113,99 @@ export class GxCalendarMonthView {
     viewDate: this.viewDate,
     weekStartsOn: this.weekStartsOn,
     excluded: this.excludeDays,
-    days: [
-      {
-        date: this.viewDate,
-        isPast: false,
-        isToday: false,
-        isFuture: true,
-        inMonth: true,
-        isWeekend: false,
-        badgeTotal: 100,
-      },
-      {
-        date: addDays(startOfDay(new Date()), 1),
-        isPast: false,
-        isToday: false,
-        isFuture: true,
-        inMonth: true,
-        isWeekend: false,
-        badgeTotal: 1,
-      },
-      {
-        date: addDays(startOfDay(new Date()), 2),
-        isPast: false,
-        isToday: false,
-        isFuture: true,
-        inMonth: true,
-        isWeekend: false,
-        badgeTotal: 2,
-      },
-      {
-        date: addDays(startOfDay(new Date()), 3),
-        isPast: false,
-        isToday: false,
-        isFuture: true,
-        inMonth: true,
-        isWeekend: false,
-        badgeTotal: 3,
-      },
-      {
-        date: addDays(startOfDay(new Date()), 4),
-        isPast: false,
-        isToday: false,
-        isFuture: true,
-        inMonth: true,
-        isWeekend: false,
-        badgeTotal: 3,
-      },
-      {
-        date: addDays(startOfDay(new Date()), 5),
-        isPast: false,
-        isToday: false,
-        isFuture: true,
-        inMonth: true,
-        isWeekend: false,
-        badgeTotal: 3,
-      },
-      {
-        date: addDays(startOfDay(new Date()), 6),
-        isPast: false,
-        isToday: false,
-        isFuture: true,
-        inMonth: true,
-        isWeekend: false,
-        badgeTotal: 3,
-      },
-      {
-        date: addDays(startOfDay(new Date()), 7),
-        isPast: false,
-        isToday: false,
-        isFuture: true,
-        inMonth: true,
-        isWeekend: false,
-        badgeTotal: 3,
-      },
-      {
-        date: addDays(startOfDay(new Date()), 8),
-        isPast: false,
-        isToday: false,
-        isFuture: true,
-        inMonth: true,
-        isWeekend: false,
-        badgeTotal: 5,
-      },
-      {
-        date: addDays(startOfDay(new Date()), 9),
-        isPast: false,
-        isToday: false,
-        isFuture: true,
-        inMonth: true,
-        isWeekend: false,
-        badgeTotal: 15,
-      },
-    ],
+    days: [],
+    // days: [
+    //   {
+    //     date: this.viewDate,
+    //     isPast: false,
+    //     isToday: false,
+    //     isFuture: true,
+    //     inMonth: true,
+    //     isWeekend: false,
+    //     badgeTotal: 100,
+    //   },
+    //   {
+    //     date: addDays(startOfDay(new Date()), 1),
+    //     isPast: false,
+    //     isToday: false,
+    //     isFuture: true,
+    //     inMonth: true,
+    //     isWeekend: false,
+    //     badgeTotal: 1,
+    //   },
+    //   {
+    //     date: addDays(startOfDay(new Date()), 2),
+    //     isPast: false,
+    //     isToday: false,
+    //     isFuture: true,
+    //     inMonth: true,
+    //     isWeekend: false,
+    //     badgeTotal: 2,
+    //   },
+    //   {
+    //     date: addDays(startOfDay(new Date()), 3),
+    //     isPast: false,
+    //     isToday: false,
+    //     isFuture: true,
+    //     inMonth: true,
+    //     isWeekend: false,
+    //     badgeTotal: 3,
+    //   },
+    //   {
+    //     date: addDays(startOfDay(new Date()), 4),
+    //     isPast: false,
+    //     isToday: false,
+    //     isFuture: true,
+    //     inMonth: true,
+    //     isWeekend: false,
+    //     badgeTotal: 3,
+    //   },
+    //   {
+    //     date: addDays(startOfDay(new Date()), 5),
+    //     isPast: false,
+    //     isToday: false,
+    //     isFuture: true,
+    //     inMonth: true,
+    //     isWeekend: false,
+    //     badgeTotal: 3,
+    //   },
+    //   {
+    //     date: addDays(startOfDay(new Date()), 6),
+    //     isPast: false,
+    //     isToday: false,
+    //     isFuture: true,
+    //     inMonth: true,
+    //     isWeekend: false,
+    //     badgeTotal: 3,
+    //   },
+    //   {
+    //     date: addDays(startOfDay(new Date()), 7),
+    //     isPast: false,
+    //     isToday: false,
+    //     isFuture: true,
+    //     inMonth: true,
+    //     isWeekend: false,
+    //     badgeTotal: 3,
+    //   },
+    //   {
+    //     date: addDays(startOfDay(new Date()), 8),
+    //     isPast: false,
+    //     isToday: false,
+    //     isFuture: true,
+    //     inMonth: true,
+    //     isWeekend: false,
+    //     badgeTotal: 5,
+    //   },
+    //   {
+    //     date: addDays(startOfDay(new Date()), 9),
+    //     isPast: false,
+    //     isToday: false,
+    //     isFuture: true,
+    //     inMonth: true,
+    //     isWeekend: false,
+    //     badgeTotal: 15,
+    //   },
+    // ],
   });
 
   /**
@@ -224,9 +225,9 @@ export class GxCalendarMonthView {
 
   // constructor(private gmv: GxCalendarUtils) {}
 
-  componentDidLoad() {
-    console.log((this.viewDate = new Date()));
-    // this.refreshBody();
+  componentWillLoad() {
+    // console.log((this.viewDate = new Date())); /
+    this.refreshBody();
   }
 
   @Method()
@@ -235,6 +236,46 @@ export class GxCalendarMonthView {
   @Method()
   refreshBody(): void {
     console.log('refreshing body');
+    console.log(this.viewDate);
+
+    let monthDays = [];
+
+    for (let x = 0; x < moment(this.viewDate).date(); x++) {
+      monthDays.push({
+        date: moment(this.viewDate)
+          .startOf('month')
+          .add(x, 'd'),
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 100,
+      });
+    }
+
+    for (
+      let x = moment(this.viewDate).date();
+      x < moment(this.viewDate).daysInMonth();
+      x++
+    ) {
+      monthDays.push({
+        date: moment(this.viewDate)
+          .startOf('month')
+          .add(x, 'd'),
+        isPast: false,
+        isToday: false,
+        isFuture: true,
+        inMonth: true,
+        isWeekend: false,
+        badgeTotal: 100,
+      });
+    }
+
+    console.log(monthDays);
+
+    this.view.days = monthDays;
+
     console.log(this.view.days);
   }
 

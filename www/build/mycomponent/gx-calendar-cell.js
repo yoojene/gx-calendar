@@ -4528,9 +4528,7 @@ hooks.HTML5_FMT = {
 
 class GxCalendarCell {
     componentDidLoad() {
-        console.log(this.day);
-        console.log(this.day.date);
-        this.day.date = this.day.date.toDateString(); // Wouldn't render PODO
+        // this.day.date = this.day.date.toDateString(); // Wouldn't render PODO
         this.badgeTotal = 50;
         // TODO Find out if can render object props in JSX/TSX
         // this.day = {
@@ -10163,7 +10161,6 @@ var dateFns = {
   subYears: sub_years
 };
 
-var dateFns_1 = dateFns.addDays;
 var dateFns_37 = dateFns.endOfDay;
 var dateFns_132 = dateFns.startOfDay;
 var dateFns_145 = dateFns.subDays;
@@ -10227,6 +10224,7 @@ const EVENTS = [
     },
 ];
 
+// import { startOfDay, addDays } from 'date-fns';
 // import { GxCalendarUtils } from '../providers/gx-calendar-utils.provider';
 class GxCalendarMonthView {
     constructor() {
@@ -10268,98 +10266,7 @@ class GxCalendarMonthView {
             viewDate: this.viewDate,
             weekStartsOn: this.weekStartsOn,
             excluded: this.excludeDays,
-            days: [
-                {
-                    date: this.viewDate,
-                    isPast: false,
-                    isToday: false,
-                    isFuture: true,
-                    inMonth: true,
-                    isWeekend: false,
-                    badgeTotal: 100,
-                },
-                {
-                    date: dateFns_1(dateFns_132(new Date()), 1),
-                    isPast: false,
-                    isToday: false,
-                    isFuture: true,
-                    inMonth: true,
-                    isWeekend: false,
-                    badgeTotal: 1,
-                },
-                {
-                    date: dateFns_1(dateFns_132(new Date()), 2),
-                    isPast: false,
-                    isToday: false,
-                    isFuture: true,
-                    inMonth: true,
-                    isWeekend: false,
-                    badgeTotal: 2,
-                },
-                {
-                    date: dateFns_1(dateFns_132(new Date()), 3),
-                    isPast: false,
-                    isToday: false,
-                    isFuture: true,
-                    inMonth: true,
-                    isWeekend: false,
-                    badgeTotal: 3,
-                },
-                {
-                    date: dateFns_1(dateFns_132(new Date()), 4),
-                    isPast: false,
-                    isToday: false,
-                    isFuture: true,
-                    inMonth: true,
-                    isWeekend: false,
-                    badgeTotal: 3,
-                },
-                {
-                    date: dateFns_1(dateFns_132(new Date()), 5),
-                    isPast: false,
-                    isToday: false,
-                    isFuture: true,
-                    inMonth: true,
-                    isWeekend: false,
-                    badgeTotal: 3,
-                },
-                {
-                    date: dateFns_1(dateFns_132(new Date()), 6),
-                    isPast: false,
-                    isToday: false,
-                    isFuture: true,
-                    inMonth: true,
-                    isWeekend: false,
-                    badgeTotal: 3,
-                },
-                {
-                    date: dateFns_1(dateFns_132(new Date()), 7),
-                    isPast: false,
-                    isToday: false,
-                    isFuture: true,
-                    inMonth: true,
-                    isWeekend: false,
-                    badgeTotal: 3,
-                },
-                {
-                    date: dateFns_1(dateFns_132(new Date()), 8),
-                    isPast: false,
-                    isToday: false,
-                    isFuture: true,
-                    inMonth: true,
-                    isWeekend: false,
-                    badgeTotal: 5,
-                },
-                {
-                    date: dateFns_1(dateFns_132(new Date()), 9),
-                    isPast: false,
-                    isToday: false,
-                    isFuture: true,
-                    inMonth: true,
-                    isWeekend: false,
-                    badgeTotal: 15,
-                },
-            ],
+            days: [],
         });
     }
     /**
@@ -10367,13 +10274,43 @@ class GxCalendarMonthView {
      */
     // refreshSubscription: Subscription;
     // constructor(private gmv: GxCalendarUtils) {}
-    componentDidLoad() {
-        console.log((this.viewDate = new Date()));
-        // this.refreshBody();
+    componentWillLoad() {
+        // console.log((this.viewDate = new Date())); /
+        this.refreshBody();
     }
     refreshHeader() { }
     refreshBody() {
         console.log('refreshing body');
+        console.log(this.viewDate);
+        let monthDays = [];
+        for (let x = 0; x < hooks(this.viewDate).date(); x++) {
+            monthDays.push({
+                date: hooks(this.viewDate)
+                    .startOf('month')
+                    .add(x, 'd'),
+                isPast: false,
+                isToday: false,
+                isFuture: true,
+                inMonth: true,
+                isWeekend: false,
+                badgeTotal: 100,
+            });
+        }
+        for (let x = hooks(this.viewDate).date(); x < hooks(this.viewDate).daysInMonth(); x++) {
+            monthDays.push({
+                date: hooks(this.viewDate)
+                    .startOf('month')
+                    .add(x, 'd'),
+                isPast: false,
+                isToday: false,
+                isFuture: true,
+                inMonth: true,
+                isWeekend: false,
+                badgeTotal: 100,
+            });
+        }
+        console.log(monthDays);
+        this.view.days = monthDays;
         console.log(this.view.days);
     }
     render() {
