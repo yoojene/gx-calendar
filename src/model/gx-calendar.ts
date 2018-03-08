@@ -1,4 +1,5 @@
 import { startOfDay, endOfDay, subDays } from 'date-fns';
+import { Moment } from 'moment';
 
 export interface EventColor {
   primary: string;
@@ -45,7 +46,7 @@ export interface MonthViewDay extends WeekDay {
 
 export interface MonthView {
   events?: CalendarEvent[];
-  viewDate: Date;
+  viewDate: Moment;
   weekStartsOn: number;
   excluded?: number[];
 

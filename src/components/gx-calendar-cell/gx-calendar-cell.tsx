@@ -74,20 +74,8 @@ export class GxCalendarCell {
   @Event() eventClicked: EventEmitter;
 
   componentDidLoad() {
-    // this.day.date = this.day.date.toDateString(); // Wouldn't render PODO
     this.badgeTotal = 50;
-    // TODO Find out if can render object props in JSX/TSX
-    // this.day = {
-    //   date: new Date(),
-    //   isPast: false,
-    //   isToday: true,
-    //   isFuture: false,
-    //   isWeekend: true,
-    //   inMonth: true,
-    //   badgeTotal: 10,
-    // };
-    // this.day.badgeTotal = 10;
-    // this.day.date = new Date();
+ 
   }
 
   @Method()

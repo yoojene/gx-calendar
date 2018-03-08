@@ -5,6 +5,7 @@ import {
   EventEmitter,
   // State,
   Method,
+  State,
   // State,
 } from '@stencil/core';
 
@@ -19,7 +20,7 @@ import {
 } from '../../model/gx-calendar';
 
 // import { startOfDay, addDays } from 'date-fns';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 // import { GxCalendarUtils } from '../providers/gx-calendar-utils.provider';
 
 @Component({
@@ -31,8 +32,7 @@ export class GxCalendarMonthView {
   /**
    * The current view date
    */
-  // @Prop()
-  viewDate: Date = new Date();
+  @State() viewDate: Moment = moment();
 
   /**
    * An array of events to display on view
@@ -107,6 +107,7 @@ export class GxCalendarMonthView {
   /**
    * @hidden
    */
+  // @State()
   view: MonthView = (this.view = {
     rowOffsets: [0, 7, 14, 21, 28],
     events: this.events,
@@ -114,98 +115,6 @@ export class GxCalendarMonthView {
     weekStartsOn: this.weekStartsOn,
     excluded: this.excludeDays,
     days: [],
-    // days: [
-    //   {
-    //     date: this.viewDate,
-    //     isPast: false,
-    //     isToday: false,
-    //     isFuture: true,
-    //     inMonth: true,
-    //     isWeekend: false,
-    //     badgeTotal: 100,
-    //   },
-    //   {
-    //     date: addDays(startOfDay(new Date()), 1),
-    //     isPast: false,
-    //     isToday: false,
-    //     isFuture: true,
-    //     inMonth: true,
-    //     isWeekend: false,
-    //     badgeTotal: 1,
-    //   },
-    //   {
-    //     date: addDays(startOfDay(new Date()), 2),
-    //     isPast: false,
-    //     isToday: false,
-    //     isFuture: true,
-    //     inMonth: true,
-    //     isWeekend: false,
-    //     badgeTotal: 2,
-    //   },
-    //   {
-    //     date: addDays(startOfDay(new Date()), 3),
-    //     isPast: false,
-    //     isToday: false,
-    //     isFuture: true,
-    //     inMonth: true,
-    //     isWeekend: false,
-    //     badgeTotal: 3,
-    //   },
-    //   {
-    //     date: addDays(startOfDay(new Date()), 4),
-    //     isPast: false,
-    //     isToday: false,
-    //     isFuture: true,
-    //     inMonth: true,
-    //     isWeekend: false,
-    //     badgeTotal: 3,
-    //   },
-    //   {
-    //     date: addDays(startOfDay(new Date()), 5),
-    //     isPast: false,
-    //     isToday: false,
-    //     isFuture: true,
-    //     inMonth: true,
-    //     isWeekend: false,
-    //     badgeTotal: 3,
-    //   },
-    //   {
-    //     date: addDays(startOfDay(new Date()), 6),
-    //     isPast: false,
-    //     isToday: false,
-    //     isFuture: true,
-    //     inMonth: true,
-    //     isWeekend: false,
-    //     badgeTotal: 3,
-    //   },
-    //   {
-    //     date: addDays(startOfDay(new Date()), 7),
-    //     isPast: false,
-    //     isToday: false,
-    //     isFuture: true,
-    //     inMonth: true,
-    //     isWeekend: false,
-    //     badgeTotal: 3,
-    //   },
-    //   {
-    //     date: addDays(startOfDay(new Date()), 8),
-    //     isPast: false,
-    //     isToday: false,
-    //     isFuture: true,
-    //     inMonth: true,
-    //     isWeekend: false,
-    //     badgeTotal: 5,
-    //   },
-    //   {
-    //     date: addDays(startOfDay(new Date()), 9),
-    //     isPast: false,
-    //     isToday: false,
-    //     isFuture: true,
-    //     inMonth: true,
-    //     isWeekend: false,
-    //     badgeTotal: 15,
-    //   },
-    // ],
   });
 
   /**
@@ -226,7 +135,6 @@ export class GxCalendarMonthView {
   // constructor(private gmv: GxCalendarUtils) {}
 
   componentWillLoad() {
-    // console.log((this.viewDate = new Date())); /
     this.refreshBody();
   }
 
@@ -235,9 +143,6 @@ export class GxCalendarMonthView {
 
   @Method()
   refreshBody(): void {
-    console.log('refreshing body');
-    console.log(this.viewDate);
-
     let monthDays = [];
 
     for (let x = 0; x < moment(this.viewDate).date(); x++) {
@@ -246,7 +151,7 @@ export class GxCalendarMonthView {
           .startOf('month')
           .add(x, 'd'),
         isPast: false,
-        isToday: false,
+        isToday: moment(this.viewDate).date() - x === 1 ? true : false,
         isFuture: true,
         inMonth: true,
         isWeekend: false,
@@ -267,21 +172,50 @@ export class GxCalendarMonthView {
         isToday: false,
         isFuture: true,
         inMonth: true,
-        isWeekend: false,
+        isWeekend:
+          moment(this.viewDate)
+            .startOf('month')
+            .add(x, 'd')
+            .day() === 0 ||
+          moment(this.viewDate)
+            .startOf('month')
+            .add(x, 'd')
+            .day() === 6
+            ? true
+            : false,
         badgeTotal: 100,
       });
     }
 
-    console.log(monthDays);
-
     this.view.days = monthDays;
+  }
 
-    console.log(this.view.days);
+  @Method()
+  prevMonth() {
+    this.viewDate = moment(this.viewDate).subtract(1, 'M');
+    this.refreshBody();
+  }
+
+  @Method()
+  nextMonth() {
+    this.viewDate = moment(this.viewDate).add(1, 'M');
+    this.refreshBody();
   }
 
   render() {
     return (
       <div class="cal-month-view">
+        <div class="cal-month-view--container">
+          <div class="cal-prev-month">
+            <button onClick={() => this.prevMonth()}> Previous Month </button>
+          </div>
+          <div class="cal-header">
+            {moment(this.viewDate).format('MMM GGGG')}
+          </div>
+          <div class="cal-next-month">
+            <button onClick={() => this.nextMonth()}> Next Month </button>
+          </div>
+        </div>
         <div class="cal-cell-row cal-header">
           {this.view.days
             .map(day => (
@@ -295,9 +229,20 @@ export class GxCalendarMonthView {
                 }}
               >
                 {moment(day.date).format('ddd')}
+                <div hidden>{moment(day.date).format('d')}</div>
               </div>
+              // <div>
+              //
+              //   </div>
             ))
-            .slice(0, 7)}
+            .slice(0, 7)
+          // .sort((a: any, b: any) => {
+          //   return (
+          //     a.vchildren[1].vchildren[0].vtext -
+          //     b.vchildren[1].vchildren[0].vtext
+          //   );
+          // })
+          }
         </div>
         <div class="cal-days">
           {this.view.rowOffsets.map(rowIdx => (
@@ -314,10 +259,5 @@ export class GxCalendarMonthView {
         </div>
       </div>
     );
-    //   {this.view.rowOffsets.map(() => <div class="cal-cell-row">
-    //       <gx-calendar-cell />
-    //       )});
-    //     </div>)}
-    // </div>;
   }
 }

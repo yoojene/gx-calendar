@@ -168,3 +168,19 @@
 .cal-month-view .cal-out-month .cal-event {
   opacity: 0.3;
 }
+
+.cal-month-view--container {
+  display: flex;
+  flex: 1;
+  justify-content: space-around;
+}
+/* .cal-prev-month {
+  align-items: flex-start;
+}
+.cal-next-month {
+  align-items: flex-end;
+}
+
+.cal-header {
+  align-content: center;
+} */
