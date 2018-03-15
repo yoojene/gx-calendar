@@ -4528,7 +4528,7 @@ hooks.HTML5_FMT = {
 
 class GxCalendarCell {
     componentDidLoad() {
-        this.badgeTotal = 50;
+        // this.badgeTotal = 50;
     }
     onEventClick(mouseEvent, calendarEvent) {
         console.log('clicked');
@@ -10219,6 +10219,7 @@ class GxCalendarMonthView {
          * The current view date
          */
         this.viewDate = hooks();
+        // @State() monthDays: any[] = [];
         /**
          * An array of events to display on view
          */
@@ -10269,29 +10270,47 @@ class GxCalendarMonthView {
         let monthHeader = [];
         console.log(hooks(this.viewDate).day());
         let fom = hooks(this.viewDate).startOf('month');
-        // console.log(fom.format('ddd'));
-        // console.log(fom.format('YYYY-MM-DD'));
         let dowIdx = hooks(fom).day(); // Get weekday index for first of month;
         // console.log(dowIdx);
-        let firstHeader = hooks(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
+        this.firstVisibleDate = hooks(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
         // console.log(firstHeader.format('ddd')); // should be Sunday
         // console.log(firstHeader.format('YYYY-MM-DD')); // should be 25th Feb
-        monthHeader.push({ date: firstHeader });
+        monthHeader.push({ date: this.firstVisibleDate });
         console.log(monthHeader);
         for (let x = 1; x < 7; x++) {
-            monthHeader.push({ date: hooks(firstHeader).add(x, 'd') });
+            monthHeader.push({
+                date: hooks(this.firstVisibleDate).add(x, 'd'),
+                isPast: true,
+                isToday: hooks(this.viewDate).date() === hooks(this.firstVisibleDate).date() ? true : false,
+                isFuture: false,
+                inMonth: true,
+                isWeekend: hooks(this.firstVisibleDate).add(x, 'd')
+                    .day() === 0 ||
+                    hooks(this.firstVisibleDate).add(x, 'd')
+                        .day() === 6
+                    ? true
+                    : false,
+            });
         }
         console.log(monthHeader);
         this.columnHeaders = monthHeader;
     }
     refreshBody() {
         let monthDays = [];
+        this.columnHeaders.forEach(el => {
+            // const merged = Object.assign({}, el, {badgeTotal: 100});
+            monthDays.push(el); // First 7 days.
+        });
         // Need total 35 days shown, 5 rows of 7 days
+        console.log(this.firstVisibleDate);
+        let headerLast = this.columnHeaders[6].date; // Last day of the first week
+        console.log(headerLast);
         // Days before today
-        for (let x = 0; x < hooks(this.viewDate).date(); x++) {
+        for (let x = 1; x < hooks(this.viewDate).daysInMonth(); x++) {
+            // console.log(moment(this.viewDate).date() )
+            // console.log(x)
             monthDays.push({
-                date: hooks(this.viewDate)
-                    .startOf('month')
+                date: hooks(headerLast)
                     .add(x, 'd'),
                 isPast: true,
                 isToday: hooks(this.viewDate).date() - x === 1 ? true : false,
@@ -10307,34 +10326,8 @@ class GxCalendarMonthView {
                         .day() === 6
                     ? true
                     : false,
-                badgeTotal: 100,
             });
         }
-        console.log(monthDays);
-        // Days after today up until end of month
-        for (let x = hooks(this.viewDate).date(); x < hooks(this.viewDate).daysInMonth(); x++) {
-            monthDays.push({
-                date: hooks(this.viewDate)
-                    .startOf('month')
-                    .add(x, 'd'),
-                isPast: false,
-                isToday: false,
-                isFuture: true,
-                inMonth: true,
-                isWeekend: hooks(this.viewDate)
-                    .startOf('month')
-                    .add(x, 'd')
-                    .day() === 0 ||
-                    hooks(this.viewDate)
-                        .startOf('month')
-                        .add(x, 'd')
-                        .day() === 6
-                    ? true
-                    : false,
-                badgeTotal: 100,
-            });
-        }
-        console.log(monthDays);
         this.view.days = monthDays;
     }
     prevMonth() {
@@ -10364,9 +10357,9 @@ class GxCalendarMonthView {
                 .slice(rowIdx, rowIdx + 7)))))));
     }
     static get is() { return "gx-calendar-month-view"; }
-    static get properties() { return { "activeDayIsOpen": { "type": Boolean, "attr": "active-day-is-open" }, "dayModifier": { "type": "Any", "attr": "day-modifier" }, "locale": { "type": String, "attr": "locale" }, "nextMonth": { "method": true }, "prevMonth": { "method": true }, "refreshBody": { "method": true }, "refreshHeader": { "method": true }, "tooltipPlacement": { "type": String, "attr": "tooltip-placement" }, "viewDate": { "state": true } }; }
+    static get properties() { return { "activeDayIsOpen": { "type": Boolean, "attr": "active-day-is-open" }, "dayModifier": { "type": "Any", "attr": "day-modifier" }, "firstVisibleDate": { "state": true }, "locale": { "type": String, "attr": "locale" }, "nextMonth": { "method": true }, "prevMonth": { "method": true }, "refreshBody": { "method": true }, "refreshHeader": { "method": true }, "tooltipPlacement": { "type": String, "attr": "tooltip-placement" }, "viewDate": { "state": true } }; }
     static get events() { return [{ "name": "dayClicked", "method": "dayClicked", "bubbles": true, "cancelable": true, "composed": true }, { "name": "dayPressed", "method": "dayPressed", "bubbles": true, "cancelable": true, "composed": true }, { "name": "eventClicked", "method": "eventClicked", "bubbles": true, "cancelable": true, "composed": true }, { "name": "eventTimesChanged", "method": "eventTimesChanged", "bubbles": true, "cancelable": true, "composed": true }]; }
-    static get style() { return ".cal-month-view .cal-header {\n  text-align: center;\n  font-weight: bolder;\n}\n\n.cal-month-view .cal-cell-row:hover {\n  background-color: #fafafa;\n}\n\n.cal-month-view .cal-header .cal-cell {\n  padding: 5px 0;\n  overflow: hidden;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  display: block;\n  white-space: nowrap;\n}\n\n.cal-month-view .cal-cell-row .cal-cell:hover,\n.cal-month-view .cal-cell.cal-has-events.cal-open {\n  background-color: #ededed;\n}\n\n.cal-month-view .cal-days {\n  border: 1px solid #e1e1e1;\n  border-bottom: 0;\n}\n\n.cal-month-view .cal-cell-top {\n  min-height: 78px;\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n}\n\n.cal-month-view .cal-cell-row {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  -js-display: flex;\n  display: flex;\n}\n\n.cal-month-view .cal-cell {\n  float: left;\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  -js-display: flex;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -ms-flex-direction: column;\n  flex-direction: column;\n  -webkit-box-align: stretch;\n  -ms-flex-align: stretch;\n  align-items: stretch;\n}\n\n.cal-month-view .cal-day-cell {\n  min-height: 100px;\n}\n\n.cal-month-view .cal-day-cell:not(:last-child) {\n  border-right: 1px solid #e1e1e1;\n}\n\n.cal-month-view .cal-days .cal-cell-row {\n  border-bottom: 1px solid #e1e1e1;\n}\n\n.cal-month-view .cal-day-badge {\n  margin-top: 18px;\n  margin-left: 10px;\n  background-color: #b94a48;\n  display: inline-block;\n  min-width: 10px;\n  padding: 3px 7px;\n  font-size: 12px;\n  font-weight: 700;\n  line-height: 1;\n  color: white;\n  text-align: center;\n  white-space: nowrap;\n  vertical-align: middle;\n  border-radius: 10px;\n}\n\n.cal-month-view .cal-day-number {\n  font-size: 1.2em;\n  font-weight: 400;\n  opacity: 0.5;\n  margin-top: 15px;\n  margin-right: 15px;\n  float: right;\n  margin-bottom: 10px;\n}\n\n.cal-month-view .cal-events {\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n  -webkit-box-align: end;\n  -ms-flex-align: end;\n  align-items: flex-end;\n  margin: 3px;\n  line-height: 10px;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  -js-display: flex;\n  display: flex;\n  -ms-flex-wrap: wrap;\n  flex-wrap: wrap;\n}\n\n.cal-month-view .cal-event {\n  width: 10px;\n  height: 10px;\n  border-radius: 50%;\n  display: inline-block;\n  margin: 2px;\n}\n\n.cal-month-view .cal-day-cell.cal-in-month.cal-has-events {\n  cursor: pointer;\n}\n\n.cal-month-view .cal-day-cell.cal-out-month .cal-day-number {\n  opacity: 0.1;\n  cursor: default;\n}\n\n.cal-month-view .cal-day-cell.cal-weekend .cal-day-number {\n  color: darkred;\n}\n\n.cal-month-view .cal-day-cell.cal-today {\n  background-color: #e8fde7;\n}\n\n.cal-month-view .cal-day-cell.cal-today .cal-day-number {\n  font-size: 1.9em;\n}\n\n.cal-month-view .cal-day-cell.cal-drag-over {\n  background-color: #e0e0e0 !important;\n}\n\n.cal-month-view .cal-open-day-events {\n  padding: 15px;\n  color: white;\n  background-color: #555;\n  -webkit-box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.5);\n  box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.5);\n}\n\n.cal-month-view .cal-open-day-events .cal-event {\n  position: relative;\n  top: 2px;\n}\n\n.cal-month-view .cal-event-title {\n  color: white;\n}\n\n.cal-month-view .cal-out-month .cal-day-badge,\n.cal-month-view .cal-out-month .cal-event {\n  opacity: 0.3;\n}\n\n.cal-month-view--container {\n  display: flex;\n  flex: 1;\n  justify-content: space-around;\n}\n/* .cal-prev-month {\n  align-items: flex-start;\n}\n.cal-next-month {\n  align-items: flex-end;\n}\n\n.cal-header {\n  align-content: center;\n} */"; }
+    static get style() { return ".cal-month-view .cal-header {\n  text-align: center;\n  font-weight: bolder;\n}\n\n.cal-month-view .cal-cell-row:hover {\n  background-color: #fafafa;\n}\n\n.cal-month-view .cal-header .cal-cell {\n  padding: 5px 0;\n  overflow: hidden;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  display: block;\n  white-space: nowrap;\n}\n\n.cal-month-view .cal-cell-row .cal-cell:hover,\n.cal-month-view .cal-cell.cal-has-events.cal-open {\n  background-color: #ededed;\n}\n\n.cal-month-view .cal-days {\n  border: 1px solid #e1e1e1;\n  border-bottom: 0;\n}\n\n.cal-month-view .cal-cell-top {\n  min-height: 78px;\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n}\n\n.cal-month-view .cal-cell-row {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  -js-display: flex;\n  display: flex;\n  justify-content: space-evenly;\n}\n\n.cal-month-view .cal-cell {\n  float: left;\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  -js-display: flex;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -ms-flex-direction: column;\n  flex-direction: column;\n  -webkit-box-align: stretch;\n  -ms-flex-align: stretch;\n  align-items: stretch;\n}\n\n.cal-month-view .cal-day-cell {\n  min-height: 100px;\n}\n\n.cal-month-view .cal-day-cell:not(:last-child) {\n  border-right: 1px solid #e1e1e1;\n}\n\n.cal-month-view .cal-days .cal-cell-row {\n  border-bottom: 1px solid #e1e1e1;\n}\n\n.cal-month-view .cal-day-badge {\n  margin-top: 18px;\n  margin-left: 10px;\n  background-color: #b94a48;\n  display: inline-block;\n  min-width: 10px;\n  padding: 3px 7px;\n  font-size: 12px;\n  font-weight: 700;\n  line-height: 1;\n  color: white;\n  text-align: center;\n  white-space: nowrap;\n  vertical-align: middle;\n  border-radius: 10px;\n}\n\n.cal-month-view .cal-day-number {\n  font-size: 1.2em;\n  font-weight: 400;\n  opacity: 0.5;\n  margin-top: 15px;\n  margin-right: 15px;\n  float: right;\n  margin-bottom: 10px;\n}\n\n.cal-month-view .cal-events {\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n  -webkit-box-align: end;\n  -ms-flex-align: end;\n  align-items: flex-end;\n  margin: 3px;\n  line-height: 10px;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  -js-display: flex;\n  display: flex;\n  -ms-flex-wrap: wrap;\n  flex-wrap: wrap;\n}\n\n.cal-month-view .cal-event {\n  width: 10px;\n  height: 10px;\n  border-radius: 50%;\n  display: inline-block;\n  margin: 2px;\n}\n\n.cal-month-view .cal-day-cell.cal-in-month.cal-has-events {\n  cursor: pointer;\n}\n\n.cal-month-view .cal-day-cell.cal-out-month .cal-day-number {\n  opacity: 0.1;\n  cursor: default;\n}\n\n.cal-month-view .cal-day-cell.cal-weekend .cal-day-number {\n  color: darkred;\n}\n\n.cal-month-view .cal-day-cell.cal-today {\n  background-color: #e8fde7;\n}\n\n.cal-month-view .cal-day-cell.cal-today .cal-day-number {\n  font-size: 1.9em;\n}\n\n.cal-month-view .cal-day-cell.cal-drag-over {\n  background-color: #e0e0e0 !important;\n}\n\n.cal-month-view .cal-open-day-events {\n  padding: 15px;\n  color: white;\n  background-color: #555;\n  -webkit-box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.5);\n  box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.5);\n}\n\n.cal-month-view .cal-open-day-events .cal-event {\n  position: relative;\n  top: 2px;\n}\n\n.cal-month-view .cal-event-title {\n  color: white;\n}\n\n.cal-month-view .cal-out-month .cal-day-badge,\n.cal-month-view .cal-out-month .cal-event {\n  opacity: 0.3;\n}\n\n.cal-month-view--container {\n  display: flex;\n  flex: 1;\n  justify-content: space-around;\n}\n/* .cal-prev-month {\n  align-items: flex-start;\n}\n.cal-next-month {\n  align-items: flex-end;\n}\n\n.cal-header {\n  align-content: center;\n} */"; }
 }
 
 export { GxCalendarCell, GxCalendarMonthView };

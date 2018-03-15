@@ -74,8 +74,8 @@ export class GxCalendarCell {
   @Event() eventClicked: EventEmitter;
 
   componentDidLoad() {
-    this.badgeTotal = 50;
- 
+    // this.badgeTotal = 50;
+
   }
 
   @Method()

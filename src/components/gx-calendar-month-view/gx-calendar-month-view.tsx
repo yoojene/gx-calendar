@@ -11,7 +11,6 @@ import {
 
 import {
   CalendarEvent,
-  WeekDay,
   MonthViewDay,
   // MonthView,
   EVENTS,
@@ -33,6 +32,18 @@ export class GxCalendarMonthView {
    * The current view date
    */
   @State() viewDate: Moment = moment();
+
+  /**
+   * The first date visible on a given month
+   *
+   * @type {Moment}
+   * @memberof GxCalendarMonthView
+   */
+@State() firstVisibleDate: Moment;
+
+
+
+// @State() monthDays: any[] = [];
 
   /**
    * An array of events to display on view
@@ -102,7 +113,7 @@ export class GxCalendarMonthView {
   /**
    * @hidden
    */
-  columnHeaders: WeekDay[];
+  columnHeaders: any[];
 
   /**
    * @hidden
@@ -146,23 +157,32 @@ export class GxCalendarMonthView {
 
     let fom = moment(this.viewDate).startOf('month');
 
-    // console.log(fom.format('ddd'));
-    // console.log(fom.format('YYYY-MM-DD'));
-
     let dowIdx = moment(fom).day(); // Get weekday index for first of month;
 
     // console.log(dowIdx);
 
-    let firstHeader = moment(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
+    this.firstVisibleDate = moment(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
 
     // console.log(firstHeader.format('ddd')); // should be Sunday
     // console.log(firstHeader.format('YYYY-MM-DD')); // should be 25th Feb
 
-    monthHeader.push({ date: firstHeader });
+    monthHeader.push({ date: this.firstVisibleDate });
     console.log(monthHeader);
 
     for (let x = 1; x < 7; x++) {
-      monthHeader.push({ date: moment(firstHeader).add(x, 'd') });
+      monthHeader.push({
+        date: moment(this.firstVisibleDate).add(x, 'd'),
+        isPast: true,
+        isToday: moment(this.viewDate).date() === moment(this.firstVisibleDate).date() ? true : false,
+        isFuture: false,
+        inMonth: true,
+        isWeekend: moment(this.firstVisibleDate).add(x, 'd')
+          .day() === 0 ||
+          moment(this.firstVisibleDate).add(x, 'd')
+            .day() === 6
+          ? true
+          : false,
+      });
     }
     console.log(monthHeader);
 
@@ -173,17 +193,27 @@ export class GxCalendarMonthView {
   refreshBody(): void {
     let monthDays = [];
 
+    this.columnHeaders.forEach(el => {
+      // const merged = Object.assign({}, el, {badgeTotal: 100});
+      monthDays.push(el);  // First 7 days.
+    })
+
     // Need total 35 days shown, 5 rows of 7 days
+    console.log(this.firstVisibleDate);
+
+    let headerLast = this.columnHeaders[6].date; // Last day of the first week
+
+    console.log(headerLast);
 
     // Days before today
-
-    for (let x = 0; x < moment(this.viewDate).date(); x++) {
+    for (let x = 1; x < moment(this.viewDate).daysInMonth(); x++) {
+      // console.log(moment(this.viewDate).date() )
+      // console.log(x)
       monthDays.push({
-        date: moment(this.viewDate)
-          .startOf('month')
+        date: moment(headerLast)
           .add(x, 'd'),
         isPast: true,
-        isToday: moment(this.viewDate).date() - x === 1 ? true : false,
+        isToday: moment(this.viewDate).date() - x === 1 ? true : false, // This is wrong
         isFuture: false,
         inMonth: true,
         isWeekend:
@@ -197,42 +227,10 @@ export class GxCalendarMonthView {
             .day() === 6
             ? true
             : false,
-        badgeTotal: 100,
+        // badgeTotal: 100,
       });
     }
 
-    console.log(monthDays);
-
-    // Days after today up until end of month
-
-    for (
-      let x = moment(this.viewDate).date();
-      x < moment(this.viewDate).daysInMonth();
-      x++
-    ) {
-      monthDays.push({
-        date: moment(this.viewDate)
-          .startOf('month')
-          .add(x, 'd'),
-        isPast: false,
-        isToday: false,
-        isFuture: true,
-        inMonth: true,
-        isWeekend:
-          moment(this.viewDate)
-            .startOf('month')
-            .add(x, 'd')
-            .day() === 0 ||
-          moment(this.viewDate)
-            .startOf('month')
-            .add(x, 'd')
-            .day() === 6
-            ? true
-            : false,
-        badgeTotal: 100,
-      });
-    }
-    console.log(monthDays);
     this.view.days = monthDays;
   }
 

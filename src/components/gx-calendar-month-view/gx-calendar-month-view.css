@@ -38,6 +38,7 @@
   display: -ms-flexbox;
   -js-display: flex;
   display: flex;
+  justify-content: space-evenly;
 }
 
 .cal-month-view .cal-cell {
