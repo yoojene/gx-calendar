@@ -109,7 +109,7 @@ export class GxCalendarMonthView {
    */
   // @State()
   view: MonthView = (this.view = {
-    rowOffsets: [0, 7, 14, 21, 28],
+    rowOffsets: [0, 7, 14, 21, 27],
     events: this.events,
     viewDate: this.viewDate,
     weekStartsOn: this.weekStartsOn,
@@ -135,29 +135,75 @@ export class GxCalendarMonthView {
   // constructor(private gmv: GxCalendarUtils) {}
 
   componentWillLoad() {
+    this.refreshHeader();
     this.refreshBody();
   }
 
   @Method()
-  refreshHeader(): void {}
+  refreshHeader(): void {
+    let monthHeader = [];
+    console.log(moment(this.viewDate).day());
+
+    let fom = moment(this.viewDate).startOf('month');
+
+    // console.log(fom.format('ddd'));
+    // console.log(fom.format('YYYY-MM-DD'));
+
+    let dowIdx = moment(fom).day(); // Get weekday index for first of month;
+
+    // console.log(dowIdx);
+
+    let firstHeader = moment(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
+
+    // console.log(firstHeader.format('ddd')); // should be Sunday
+    // console.log(firstHeader.format('YYYY-MM-DD')); // should be 25th Feb
+
+    monthHeader.push({ date: firstHeader });
+    console.log(monthHeader);
+
+    for (let x = 1; x < 7; x++) {
+      monthHeader.push({ date: moment(firstHeader).add(x, 'd') });
+    }
+    console.log(monthHeader);
+
+    this.columnHeaders = monthHeader;
+  }
 
   @Method()
   refreshBody(): void {
     let monthDays = [];
+
+    // Need total 35 days shown, 5 rows of 7 days
+
+    // Days before today
 
     for (let x = 0; x < moment(this.viewDate).date(); x++) {
       monthDays.push({
         date: moment(this.viewDate)
           .startOf('month')
           .add(x, 'd'),
-        isPast: false,
+        isPast: true,
         isToday: moment(this.viewDate).date() - x === 1 ? true : false,
-        isFuture: true,
+        isFuture: false,
         inMonth: true,
-        isWeekend: false,
+        isWeekend:
+          moment(this.viewDate)
+            .startOf('month')
+            .add(x, 'd')
+            .day() === 0 ||
+          moment(this.viewDate)
+            .startOf('month')
+            .add(x, 'd')
+            .day() === 6
+            ? true
+            : false,
         badgeTotal: 100,
       });
     }
+
+    console.log(monthDays);
+
+    // Days after today up until end of month
 
     for (
       let x = moment(this.viewDate).date();
@@ -186,19 +232,21 @@ export class GxCalendarMonthView {
         badgeTotal: 100,
       });
     }
-
+    console.log(monthDays);
     this.view.days = monthDays;
   }
 
   @Method()
   prevMonth() {
     this.viewDate = moment(this.viewDate).subtract(1, 'M');
+    this.refreshHeader();
     this.refreshBody();
   }
 
   @Method()
   nextMonth() {
     this.viewDate = moment(this.viewDate).add(1, 'M');
+    this.refreshHeader();
     this.refreshBody();
   }
 
@@ -216,33 +264,31 @@ export class GxCalendarMonthView {
             <button onClick={() => this.nextMonth()}> Next Month </button>
           </div>
         </div>
-        <div class="cal-cell-row cal-header">
+        {/* <div class="cal-cell-row cal-header">
           {this.view.days
             .map(day => (
               <div
-                class={{
-                  'cal-cell': true,
-                  'cal-past': day.isPast,
-                  'cal-today': day.isToday,
-                  'cal-future': day.isFuture,
-                  'cal-weekend': day.isWeekend,
-                }}
+                class={`
+                   cal-cell
+                   ${day.isPast ? ' cal-past' : ''}
+                   ${day.isToday ? ' cal-today' : ''}
+                   ${day.isFuture ? ' cal-future' : ''}
+                   ${day.isWeekend ? ' cal-weekend' : ''}
+                 `}
               >
                 {moment(day.date).format('ddd')}
                 <div hidden>{moment(day.date).format('d')}</div>
               </div>
-              // <div>
-              //
-              //   </div>
             ))
-            .slice(0, 7)
-          // .sort((a: any, b: any) => {
-          //   return (
-          //     a.vchildren[1].vchildren[0].vtext -
-          //     b.vchildren[1].vchildren[0].vtext
-          //   );
-          // })
-          }
+            .slice(0, 7)}
+        </div> */}
+        <div class="cal-cell-row cal-header">
+          {this.columnHeaders.map(day => (
+            <div class="cal-cell">
+              {moment(day.date).format('ddd')}
+              <div hidden>{moment(day.date).format('d')}</div>
+            </div>
+          ))}
         </div>
         <div class="cal-days">
           {this.view.rowOffsets.map(rowIdx => (

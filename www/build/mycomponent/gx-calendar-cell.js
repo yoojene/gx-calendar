@@ -10248,7 +10248,7 @@ class GxCalendarMonthView {
          */
         // @State()
         this.view = (this.view = {
-            rowOffsets: [0, 7, 14, 21, 28],
+            rowOffsets: [0, 7, 14, 21, 27],
             events: this.events,
             viewDate: this.viewDate,
             weekStartsOn: this.weekStartsOn,
@@ -10262,24 +10262,56 @@ class GxCalendarMonthView {
     // refreshSubscription: Subscription;
     // constructor(private gmv: GxCalendarUtils) {}
     componentWillLoad() {
+        this.refreshHeader();
         this.refreshBody();
     }
-    refreshHeader() { }
+    refreshHeader() {
+        let monthHeader = [];
+        console.log(hooks(this.viewDate).day());
+        let fom = hooks(this.viewDate).startOf('month');
+        // console.log(fom.format('ddd'));
+        // console.log(fom.format('YYYY-MM-DD'));
+        let dowIdx = hooks(fom).day(); // Get weekday index for first of month;
+        // console.log(dowIdx);
+        let firstHeader = hooks(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
+        // console.log(firstHeader.format('ddd')); // should be Sunday
+        // console.log(firstHeader.format('YYYY-MM-DD')); // should be 25th Feb
+        monthHeader.push({ date: firstHeader });
+        console.log(monthHeader);
+        for (let x = 1; x < 7; x++) {
+            monthHeader.push({ date: hooks(firstHeader).add(x, 'd') });
+        }
+        console.log(monthHeader);
+        this.columnHeaders = monthHeader;
+    }
     refreshBody() {
         let monthDays = [];
+        // Need total 35 days shown, 5 rows of 7 days
+        // Days before today
         for (let x = 0; x < hooks(this.viewDate).date(); x++) {
             monthDays.push({
                 date: hooks(this.viewDate)
                     .startOf('month')
                     .add(x, 'd'),
-                isPast: false,
+                isPast: true,
                 isToday: hooks(this.viewDate).date() - x === 1 ? true : false,
-                isFuture: true,
+                isFuture: false,
                 inMonth: true,
-                isWeekend: false,
+                isWeekend: hooks(this.viewDate)
+                    .startOf('month')
+                    .add(x, 'd')
+                    .day() === 0 ||
+                    hooks(this.viewDate)
+                        .startOf('month')
+                        .add(x, 'd')
+                        .day() === 6
+                    ? true
+                    : false,
                 badgeTotal: 100,
             });
         }
+        console.log(monthDays);
+        // Days after today up until end of month
         for (let x = hooks(this.viewDate).date(); x < hooks(this.viewDate).daysInMonth(); x++) {
             monthDays.push({
                 date: hooks(this.viewDate)
@@ -10302,14 +10334,17 @@ class GxCalendarMonthView {
                 badgeTotal: 100,
             });
         }
+        console.log(monthDays);
         this.view.days = monthDays;
     }
     prevMonth() {
         this.viewDate = hooks(this.viewDate).subtract(1, 'M');
+        this.refreshHeader();
         this.refreshBody();
     }
     nextMonth() {
         this.viewDate = hooks(this.viewDate).add(1, 'M');
+        this.refreshHeader();
         this.refreshBody();
     }
     render() {
@@ -10320,24 +10355,9 @@ class GxCalendarMonthView {
                 h("div", { class: "cal-header" }, hooks(this.viewDate).format('MMM GGGG')),
                 h("div", { class: "cal-next-month" },
                     h("button", { onClick: () => this.nextMonth() }, " Next Month "))),
-            h("div", { class: "cal-cell-row cal-header" }, this.view.days
-                .map(day => (h("div", { class: {
-                    'cal-cell': true,
-                    'cal-past': day.isPast,
-                    'cal-today': day.isToday,
-                    'cal-future': day.isFuture,
-                    'cal-weekend': day.isWeekend,
-                } },
+            h("div", { class: "cal-cell-row cal-header" }, this.columnHeaders.map(day => (h("div", { class: "cal-cell" },
                 hooks(day.date).format('ddd'),
-                h("div", { hidden: true }, hooks(day.date).format('d')))))
-                .slice(0, 7)
-            // .sort((a: any, b: any) => {
-            //   return (
-            //     a.vchildren[1].vchildren[0].vtext -
-            //     b.vchildren[1].vchildren[0].vtext
-            //   );
-            // })
-            ),
+                h("div", { hidden: true }, hooks(day.date).format('d')))))),
             h("div", { class: "cal-days" }, this.view.rowOffsets.map(rowIdx => (h("div", { class: "cal-cell-row" }, this.view.days
                 .map(day => (h("div", null,
                 h("gx-calendar-cell", { day: day }))))
