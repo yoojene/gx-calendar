@@ -120,7 +120,7 @@ export class GxCalendarMonthView {
    */
   // @State()
   view: MonthView = (this.view = {
-    rowOffsets: [0, 7, 14, 21, 27],
+    rowOffsets: [0, 7, 14, 21, 28],
     events: this.events,
     viewDate: this.viewDate,
     weekStartsOn: this.weekStartsOn,
@@ -230,7 +230,7 @@ export class GxCalendarMonthView {
         // badgeTotal: 100,
       });
     }
-
+    console.log(monthDays)
     this.view.days = monthDays;
   }
 
