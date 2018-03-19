@@ -132,15 +132,18 @@
   cursor: default;
 }
 
-.cal-month-view .cal-day-cell.cal-weekend .cal-day-number {
+/* .cal-month-view .cal-day-cell.cal-weekend .cal-day-number { */
+.cal-month-view .cal-cell.cal-weekend  {
   color: darkred;
 }
 
-.cal-month-view .cal-day-cell.cal-today {
+/* .cal-month-view .cal-day-cell.cal-today { */
+.cal-month-view .cal-cell.cal-today {
   background-color: #e8fde7;
 }
 
-.cal-month-view .cal-day-cell.cal-today .cal-day-number {
+/* .cal-month-view .cal-day-cell.cal-today .cal-day-number { */
+.cal-month-view .cal-cell.cal-today .cal-day-number {
   font-size: 1.9em;
 }
 
