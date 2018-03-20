@@ -146,6 +146,7 @@ export class GxCalendarMonthView {
   // constructor(private gmv: GxCalendarUtils) {}
 
   componentWillLoad() {
+    console.log('component will Load')
     this.refreshHeader();
     this.refreshBody();
   }
@@ -213,7 +214,11 @@ export class GxCalendarMonthView {
   }
 
   @Method()
-  refreshBody(): void {
+  refreshBody(date?: Moment): void {
+
+    if (!date){
+      date = moment()
+    }
     let monthDays = [];
 
     this.columnHeaders.forEach(el => {
@@ -231,7 +236,11 @@ export class GxCalendarMonthView {
       monthDays.push({
         date: moment(headerLast).add(x, 'd'),
         isPast: moment(this.viewDate).date() - x > 4 ? true : false,
-        isToday: moment(this.viewDate).date() - x === 4 ? true : false,
+        isToday:
+          moment(this.viewDate).date() - x === 4  &&
+          date.format('YYYY MM DD') === moment().format('YYYY MM DD')
+            ? true
+            : false,
         isFuture: moment(this.viewDate).date() - x < 4 ? true : false,
         inMonth: true,
         isWeekend:
@@ -253,14 +262,14 @@ export class GxCalendarMonthView {
   prevMonth() {
     this.viewDate = moment(this.viewDate).subtract(1, 'M');
     this.refreshHeader();
-    this.refreshBody();
+    this.refreshBody(this.viewDate);
   }
 
   @Method()
   nextMonth() {
     this.viewDate = moment(this.viewDate).add(1, 'M');
     this.refreshHeader();
-    this.refreshBody();
+    this.refreshBody(this.viewDate);
   }
 
      render() {

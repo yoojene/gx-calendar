@@ -12911,6 +12911,7 @@ class GxCalendarMonthView {
     // refreshSubscription: Subscription;
     // constructor(private gmv: GxCalendarUtils) {}
     componentWillLoad() {
+        console.log('component will Load');
         this.refreshHeader();
         this.refreshBody();
     }
@@ -12959,7 +12960,10 @@ class GxCalendarMonthView {
         console.log(monthHeader);
         this.columnHeaders = monthHeader;
     }
-    refreshBody() {
+    refreshBody(date) {
+        if (!date) {
+            date = hooks();
+        }
         let monthDays = [];
         this.columnHeaders.forEach(el => {
             // const merged = Object.assign({}, el, {badgeTotal: 100});
@@ -12973,7 +12977,10 @@ class GxCalendarMonthView {
             monthDays.push({
                 date: hooks(headerLast).add(x, 'd'),
                 isPast: hooks(this.viewDate).date() - x > 4 ? true : false,
-                isToday: hooks(this.viewDate).date() - x === 4 ? true : false,
+                isToday: hooks(this.viewDate).date() - x === 4 &&
+                    date.format('YYYY MM DD') === hooks().format('YYYY MM DD')
+                    ? true
+                    : false,
                 isFuture: hooks(this.viewDate).date() - x < 4 ? true : false,
                 inMonth: true,
                 isWeekend: hooks(headerLast)
@@ -12992,12 +12999,12 @@ class GxCalendarMonthView {
     prevMonth() {
         this.viewDate = hooks(this.viewDate).subtract(1, 'M');
         this.refreshHeader();
-        this.refreshBody();
+        this.refreshBody(this.viewDate);
     }
     nextMonth() {
         this.viewDate = hooks(this.viewDate).add(1, 'M');
         this.refreshHeader();
-        this.refreshBody();
+        this.refreshBody(this.viewDate);
     }
     render() {
         return h("div", { class: "cal-month-view" },
