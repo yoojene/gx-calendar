@@ -74,10 +74,8 @@ declare global {
   }
   namespace JSXElements {
     export interface GxCalendarMonthViewAttributes extends HTMLAttributes {
-      activeDayIsOpen?: boolean;
-      dayModifier?: Function;
       locale?: string;
-      tooltipPlacement?: string;
+      shownavbuttons?: boolean;
     }
   }
 }
