@@ -6,7 +6,7 @@
 
 import {
   MonthViewDay,
-} from './components/gx-calendar-cell/gx-calendar-cell';
+} from './model/gx-calendar';
 
 declare global {
   interface HTMLStencilElement extends HTMLElement {
