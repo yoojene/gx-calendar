@@ -57,7 +57,6 @@ export interface MonthViewDay extends WeekDay {
   // shadow: true,
 })
 export class GxCalendarCell {
-  // @State() day: MonthViewDay;
   @Prop() day: any;
 
   @State() date: any;
@@ -67,19 +66,24 @@ export class GxCalendarCell {
   @Prop() locale: string;
   @Prop() tooltipPlacement: string;
 
-  // @Prop() customTemplate: TemplateRef<any>;
-
   @Event() highlightDay: EventEmitter;
   @Event() unhighlightDay: EventEmitter;
   @Event() eventClicked: EventEmitter;
+  @Event() dayClicked: EventEmitter;
+
+  // Lifecycle
 
   componentDidLoad() {
     // this.badgeTotal = 50;
-
   }
 
+  // Public
+
   @Method()
-  onEventClick(mouseEvent: MouseEvent, calendarEvent: CalendarEvent): void {
+  public onEventClick(
+    mouseEvent: MouseEvent,
+    calendarEvent: CalendarEvent
+  ): void {
     console.log('clicked');
     if (mouseEvent.stopPropagation) {
       mouseEvent.stopPropagation();
@@ -87,9 +91,21 @@ export class GxCalendarCell {
     this.eventClicked.emit({ event: calendarEvent });
   }
 
-  render() {
+  @Method()
+  public onDayClick(
+    mouseEvent: MouseEvent,
+    calendarEvent: CalendarEvent
+  ): void {
+    console.log('day clicked');
+    if (mouseEvent.stopPropagation) {
+      mouseEvent.stopPropagation();
+    }
+    this.dayClicked.emit({ event: calendarEvent });
+  }
+
+  public render() {
     return (
-      <div class="cal-cell-top">
+      <div class="cal-cell-top" onClick={e => this.onDayClick(e, this.day)}>
         {this.badgeTotal ? (
           <div>
             <span
