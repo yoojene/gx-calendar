@@ -105,25 +105,40 @@ export class GxCalendarCell {
 
   public render() {
     return (
-      <div class="cal-cell-top" onClick={e => this.onDayClick(e, this.day)}>
-        {this.badgeTotal ? (
-          <div>
-            <span
-              class="cal-day-badge"
-              onClick={e => this.onEventClick(e, this.day.date)}
-            >
-              {this.day.badgeTotal}
-            </span>{' '}
+      <div>
+        <div class="cal-cell-top" onClick={e => this.onDayClick(e, this.day)}>
+          {this.badgeTotal ? (
+            <div>
+              <span
+                class="cal-day-badge"
+                onClick={e => this.onEventClick(e, this.day.date)}
+              >
+                {this.day.badgeTotal}
+              </span>{' '}
+              <span class="cal-day-number">
+                {moment(this.day.date).format('D')}
+              </span>
+            </div>
+          ) : (
             <span class="cal-day-number">
               {moment(this.day.date).format('D')}
             </span>
-          </div>
-        ) : (
-          <span class="cal-day-number">
-            {moment(this.day.date).format('D')}
-          </span>
-        )}
+          )}
+        </div>
+        <div class="cal-events">
+        {this.day.events ? (
+          <div>
+          {this.day.events.map(ev => (
+            <div class="cal-event">
+            {ev}
+            </div>
+            ))}
+        </div>
+          ) : (
+          <div>
+            </div>
+          )}
+            </div>
       </div>
-    );
-  }
+  )}
 }

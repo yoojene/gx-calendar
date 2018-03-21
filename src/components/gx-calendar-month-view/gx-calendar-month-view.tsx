@@ -3,17 +3,14 @@ import {
   Prop,
   Event,
   EventEmitter,
-  // State,
   Method,
   State,
   Listen,
-  // State,
 } from '@stencil/core';
 
 import {
   CalendarEvent,
   MonthViewDay,
-  // MonthView,
   EVENTS,
   MonthView,
   // GetMonthViewArgs,
@@ -22,8 +19,6 @@ import {
 // import { startOfDay, addDays } from 'date-fns';
 import moment, { Moment } from 'moment';
 import Hammer from 'hammerjs';
-
-// import { GxCalendarUtils } from '../providers/gx-calendar-utils.provider';
 
 @Component({
   tag: 'gx-calendar-month-view',
@@ -98,12 +93,12 @@ export class GxCalendarMonthView {
   /**
    * @hidden
    */
-  columnHeaders: any[];
+  columnHeaders: MonthViewDay[];
 
   /**
    * @hidden
    */
-  // @State()
+  @State()
   view: MonthView = (this.view = {
     rowOffsets: [0, 7, 14, 21, 28],
     events: this.events,
@@ -132,6 +127,7 @@ export class GxCalendarMonthView {
 
   componentWillLoad() {
     console.log('component will Load');
+    console.log(this.events);
     this.refreshHeader();
     this.refreshBody();
   }
@@ -165,10 +161,8 @@ export class GxCalendarMonthView {
     });
   }
 
-  // Public
-
   @Method()
-  public refreshHeader(): void {
+  private refreshHeader(): void {
     let monthHeader = [];
     console.log(moment(this.viewDate).day());
 
@@ -176,14 +170,9 @@ export class GxCalendarMonthView {
 
     let dowIdx = moment(fom).day(); // Get weekday index for first of month;
 
-    // console.log(dowIdx);
-
     this.firstVisibleDate = moment(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
 
-    // console.log(firstHeader.format('ddd')); // should be Sunday
-    // console.log(firstHeader.format('YYYY-MM-DD')); // should be 25th Feb
-
-    monthHeader.push({ date: this.firstVisibleDate });
+    monthHeader.push({ date: this.firstVisibleDate }); // TODO Need to conform to MonthDayView IF
     console.log(monthHeader);
 
     for (let x = 1; x < 7; x++) {
@@ -213,7 +202,7 @@ export class GxCalendarMonthView {
   }
 
   @Method()
-  public refreshBody(date?: Moment): void {
+  private refreshBody(date?: Moment): void {
     if (!date) {
       date = moment();
     }
@@ -251,9 +240,31 @@ export class GxCalendarMonthView {
             : false,
       });
     }
-    console.log(monthDays);
     this.view.days = monthDays;
+
+    this.refreshEvents();
   }
+
+  @Method()
+  private refreshEvents(): void {
+    // console.log(this.events);
+    // console.log(this.view.days);
+
+    for (let x = 0; x < this.view.days.length; x++) {
+      this.events.forEach(ev => {
+
+        if (moment(ev.start).isSame(this.view.days[x].date.startOf('day'))) {
+          console.log('match');
+          this.view.days[x].events = [];
+          this.view.days[x].events = [...this.view.days[x].events, ev];  // TODO need to spread this?  Also need to account for when more than 1 event per day
+        }
+      })
+    }
+
+    console.log(this.view.days)
+  }
+
+  // Public
 
   @Method()
   public prevMonth() {

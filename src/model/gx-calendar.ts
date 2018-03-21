@@ -1,5 +1,5 @@
-import { startOfDay, endOfDay, subDays } from 'date-fns';
-import { Moment } from 'moment';
+// import { startOfDay, endOfDay, subDays } from 'date-fns';
+import moment, {Moment} from 'moment';
 
 export interface EventColor {
   primary: string;
@@ -13,8 +13,8 @@ export interface EventAction {
 }
 
 export interface CalendarEvent<MetaType = any> {
-  start: Date;
-  end?: Date;
+  start: Moment;
+  end?: Moment;
   title: string;
   color: EventColor;
   actions?: EventAction[];
@@ -29,7 +29,7 @@ export interface CalendarEvent<MetaType = any> {
 }
 
 export interface WeekDay {
-  date: Date;
+  date: Moment;
   isPast: boolean;
   isToday: boolean;
   isFuture: boolean;
@@ -45,14 +45,14 @@ export interface MonthViewDay extends WeekDay {
 }
 
 export interface MonthView {
-  events?: CalendarEvent[];
-  viewDate: Moment;
-  weekStartsOn: number;
-  excluded?: number[];
-
-  rowOffsets?: number[];
+  rowOffsets: number[];
   days?: MonthViewDay[];
   totalDaysVisibleInWeek?: number;
+  events?: CalendarEvent[];
+  viewDate: Moment;
+
+  weekStartsOn: number;
+  excluded?: number[];
 }
 
 export interface GetMonthViewArgs {
@@ -63,14 +63,14 @@ export interface GetMonthViewArgs {
   viewStart?: Date;
   viewEnd?: Date;
 }
-export declare function getMonthView({
-  events,
-  viewDate,
-  weekStartsOn,
-  excluded,
-  viewStart,
-  viewEnd,
-}: GetMonthViewArgs): MonthView;
+// export declare function getMonthView({
+//   events,
+//   viewDate,
+//   weekStartsOn,
+//   excluded,
+//   viewStart,
+//   viewEnd,
+// }: GetMonthViewArgs): MonthView;
 
 const colors: any = {
   mauve: {
@@ -98,8 +98,8 @@ const colors: any = {
 // Dummy calendar events
 export const EVENTS: CalendarEvent[] = [
   {
-    start: startOfDay(new Date()),
-    end: endOfDay(new Date()),
+    start: moment().startOf('day'),
+    end: moment().endOf('day'),
     title: '435 Pasos',
     color: colors.black,
     actions: null,
@@ -109,8 +109,8 @@ export const EVENTS: CalendarEvent[] = [
     },
   },
   {
-    start: subDays(startOfDay(new Date()), 4),
-    end: subDays(endOfDay(new Date()), 4),
+    start: moment().startOf('day').subtract(4, 'd'),
+    end: moment().endOf('day').subtract(4, 'd'),
     title: '3 pastillas de Advil',
     color: colors.green,
     actions: null,
@@ -120,8 +120,8 @@ export const EVENTS: CalendarEvent[] = [
     },
   },
   {
-    start: subDays(startOfDay(new Date()), 4),
-    end: subDays(endOfDay(new Date()), 4),
+    start: moment().startOf('day').subtract(4, 'd'),
+    end: moment().endOf('day').subtract(4, 'd'),
     title: 'Me siento desesperada',
     color: colors.black,
     actions: null,
