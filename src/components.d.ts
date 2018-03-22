@@ -5,6 +5,7 @@
  */
 
 import {
+  CalendarEvent,
   MonthViewDay,
 } from './model/gx-calendar';
 
@@ -74,6 +75,7 @@ declare global {
   }
   namespace JSXElements {
     export interface GxCalendarMonthViewAttributes extends HTMLAttributes {
+      events?: CalendarEvent[];
       locale?: string;
       shownavbuttons?: boolean;
     }

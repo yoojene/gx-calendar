@@ -6,17 +6,16 @@ import {
   Method,
   State,
   Listen,
+  Watch,
 } from '@stencil/core';
 
 import {
   CalendarEvent,
   MonthViewDay,
-  EVENTS,
   MonthView,
-  // GetMonthViewArgs,
+  // EVENTS,
 } from '../../model/gx-calendar';
 
-// import { startOfDay, addDays } from 'date-fns';
 import moment, { Moment } from 'moment';
 import Hammer from 'hammerjs';
 
@@ -45,7 +44,7 @@ export class GxCalendarMonthView {
    * An array of events to display on view
    * TBC
    */
-  events: CalendarEvent[] = EVENTS;
+  @Prop() events: CalendarEvent[]; // = EVENTS;
 
   /**
    * An array of day indexes (0 = sunday, 1 = monday etc) that will be hidden on the view
@@ -123,11 +122,19 @@ export class GxCalendarMonthView {
    */
   // refreshSubscription: Subscription;
 
-  // Lifecycle
+  // Watches
 
+  @Watch('events')
+  eventWatchHandler(newValue: CalendarEvent, oldValue: CalendarEvent) {
+    console.log(oldValue);
+    console.log(newValue);
+  }
+
+  // Lifecycle
   componentWillLoad() {
     console.log('component will Load');
     console.log(this.events);
+
     this.refreshHeader();
     this.refreshBody();
   }
@@ -247,21 +254,17 @@ export class GxCalendarMonthView {
 
   @Method()
   private refreshEvents(): void {
-    // console.log(this.events);
-    // console.log(this.view.days);
-
     for (let x = 0; x < this.view.days.length; x++) {
       this.events.forEach(ev => {
-
         if (moment(ev.start).isSame(this.view.days[x].date.startOf('day'))) {
-          console.log('match');
-          this.view.days[x].events = [];
-          this.view.days[x].events = [...this.view.days[x].events, ev];  // TODO need to spread this?  Also need to account for when more than 1 event per day
+          if (!this.view.days[x].events) {
+            this.view.days[x].events = [];
+          }
+          this.view.days[x].events = [...this.view.days[x].events, ev];
         }
-      })
+      });
     }
-
-    console.log(this.view.days)
+    console.log(this.view.days);
   }
 
   // Public

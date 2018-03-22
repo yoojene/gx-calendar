@@ -1,4 +1,3 @@
-// import { startOfDay, endOfDay, subDays } from 'date-fns';
 import moment, {Moment} from 'moment';
 
 export interface EventColor {
@@ -100,33 +99,41 @@ export const EVENTS: CalendarEvent[] = [
   {
     start: moment().startOf('day'),
     end: moment().endOf('day'),
-    title: '435 Pasos',
+    title: 'Blood Appointment',
     color: colors.black,
     actions: null,
     meta: {
-      type: 'activity',
+      type: 'appointment',
       icon: 'walk',
     },
   },
   {
-    start: moment().startOf('day').subtract(4, 'd'),
-    end: moment().endOf('day').subtract(4, 'd'),
-    title: '3 pastillas de Advil',
+    start: moment()
+      .startOf('day')
+      .subtract(4, 'd'),
+    end: moment()
+      .endOf('day')
+      .subtract(4, 'd'),
+    title: 'Reminder',
     color: colors.green,
     actions: null,
     meta: {
-      type: 'medicines',
+      type: 'reminder',
       class: 'newton-icon-pill',
     },
   },
   {
-    start: moment().startOf('day').subtract(4, 'd'),
-    end: moment().endOf('day').subtract(4, 'd'),
-    title: 'Me siento desesperada',
+    start: moment()
+      .startOf('day')
+      .subtract(4, 'd'),
+    end: moment()
+      .endOf('day')
+      .subtract(4, 'd'),
+    title: 'Forgotton Ibrance',
     color: colors.black,
     actions: null,
     meta: {
-      type: 'emotions',
+      type: 'medication',
       icon: 'happy',
     },
   },
