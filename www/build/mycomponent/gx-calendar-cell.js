@@ -7275,6 +7275,7 @@ class GxCalendarMonthView {
         let fom = hooks(this.viewDate).startOf('month');
         let dowIdx = hooks(fom).day(); // Get weekday index for first of month;
         this.firstVisibleDate = hooks(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
+        // First day
         monthHeader.push({
             date: this.firstVisibleDate,
             isPast: this.firstVisibleDate.dayOfYear() <
@@ -7299,12 +7300,17 @@ class GxCalendarMonthView {
         for (let x = 1; x < 7; x++) {
             monthHeader.push({
                 date: hooks(this.firstVisibleDate).add(x, 'd'),
-                isPast: true,
+                isPast: this.firstVisibleDate.dayOfYear() <
+                    hooks(this.viewDate).dayOfYear()
+                    ? true
+                    : false,
                 isToday: hooks(this.viewDate).date() ===
                     hooks(this.firstVisibleDate).date()
                     ? true
                     : false,
-                isFuture: false,
+                isFuture: this.firstVisibleDate.dayOfYear() > this.viewDate.dayOfYear()
+                    ? true
+                    : false,
                 inMonth: hooks(this.firstVisibleDate)
                     .add(x, 'd')
                     .month() === hooks(this.viewDate).month()

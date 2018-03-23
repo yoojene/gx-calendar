@@ -179,6 +179,7 @@ export class GxCalendarMonthView {
 
     this.firstVisibleDate = moment(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
 
+    // First day
     monthHeader.push({
       date: this.firstVisibleDate,
       isPast:
@@ -209,13 +210,20 @@ export class GxCalendarMonthView {
     for (let x = 1; x < 7; x++) {
       monthHeader.push({
         date: moment(this.firstVisibleDate).add(x, 'd'),
-        isPast: true,
+        isPast:
+          this.firstVisibleDate.dayOfYear() <
+          moment(this.viewDate).dayOfYear()
+            ? true
+            : false,
         isToday:
           moment(this.viewDate).date() ===
           moment(this.firstVisibleDate).date()
             ? true
             : false,
-        isFuture: false,
+        isFuture:
+          this.firstVisibleDate.dayOfYear() > this.viewDate.dayOfYear()
+            ? true
+            : false,
         inMonth:
           moment(this.firstVisibleDate)
             .add(x, 'd')
