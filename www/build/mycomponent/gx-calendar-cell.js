@@ -7275,17 +7275,41 @@ class GxCalendarMonthView {
         let fom = hooks(this.viewDate).startOf('month');
         let dowIdx = hooks(fom).day(); // Get weekday index for first of month;
         this.firstVisibleDate = hooks(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
-        monthHeader.push({ date: this.firstVisibleDate }); // TODO Need to conform to MonthDayView IF
+        monthHeader.push({
+            date: this.firstVisibleDate,
+            isPast: this.firstVisibleDate.dayOfYear() <
+                hooks(this.viewDate).dayOfYear()
+                ? true
+                : false,
+            isToday: this.firstVisibleDate.date() === hooks(this.viewDate).date()
+                ? true
+                : false,
+            isFuture: this.firstVisibleDate.dayOfYear() > this.viewDate.dayOfYear()
+                ? true
+                : false,
+            inMonth: this.firstVisibleDate.month() === this.viewDate.month()
+                ? true
+                : false,
+            isWeekend: this.firstVisibleDate.day() === 0 ||
+                this.firstVisibleDate.day() === 6
+                ? true
+                : false,
+        });
         console.log(monthHeader);
         for (let x = 1; x < 7; x++) {
             monthHeader.push({
                 date: hooks(this.firstVisibleDate).add(x, 'd'),
                 isPast: true,
-                isToday: hooks(this.viewDate).date() === hooks(this.firstVisibleDate).date()
+                isToday: hooks(this.viewDate).date() ===
+                    hooks(this.firstVisibleDate).date()
                     ? true
                     : false,
                 isFuture: false,
-                inMonth: true,
+                inMonth: hooks(this.firstVisibleDate)
+                    .add(x, 'd')
+                    .month() === hooks(this.viewDate).month()
+                    ? true
+                    : false,
                 isWeekend: hooks(this.firstVisibleDate)
                     .add(x, 'd')
                     .day() === 0 ||
@@ -7320,7 +7344,11 @@ class GxCalendarMonthView {
                     ? true
                     : false,
                 isFuture: hooks(this.viewDate).date() - x < 4 ? true : false,
-                inMonth: true,
+                inMonth: hooks(headerLast)
+                    .add(x, 'd')
+                    .month() === hooks(this.viewDate).month()
+                    ? true
+                    : false,
                 isWeekend: hooks(headerLast)
                     .add(x, 'd')
                     .day() === 0 ||

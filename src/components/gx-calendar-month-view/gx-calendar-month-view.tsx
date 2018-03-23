@@ -179,7 +179,31 @@ export class GxCalendarMonthView {
 
     this.firstVisibleDate = moment(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
 
-    monthHeader.push({ date: this.firstVisibleDate }); // TODO Need to conform to MonthDayView IF
+    monthHeader.push({
+      date: this.firstVisibleDate,
+      isPast:
+        this.firstVisibleDate.dayOfYear() <
+        moment(this.viewDate).dayOfYear()
+          ? true
+          : false,
+      isToday:
+        this.firstVisibleDate.date() === moment(this.viewDate).date()
+          ? true
+          : false,
+      isFuture:
+        this.firstVisibleDate.dayOfYear() > this.viewDate.dayOfYear()
+          ? true
+          : false,
+      inMonth:
+        this.firstVisibleDate.month() === this.viewDate.month()
+          ? true
+          : false,
+      isWeekend:
+        this.firstVisibleDate.day() === 0 ||
+        this.firstVisibleDate.day() === 6
+          ? true
+          : false,
+    });
     console.log(monthHeader);
 
     for (let x = 1; x < 7; x++) {
@@ -187,11 +211,17 @@ export class GxCalendarMonthView {
         date: moment(this.firstVisibleDate).add(x, 'd'),
         isPast: true,
         isToday:
-          moment(this.viewDate).date() === moment(this.firstVisibleDate).date()
+          moment(this.viewDate).date() ===
+          moment(this.firstVisibleDate).date()
             ? true
             : false,
         isFuture: false,
-        inMonth: true,
+        inMonth:
+          moment(this.firstVisibleDate)
+            .add(x, 'd')
+            .month() === moment(this.viewDate).month()
+            ? true
+            : false,
         isWeekend:
           moment(this.firstVisibleDate)
             .add(x, 'd')
@@ -235,7 +265,12 @@ export class GxCalendarMonthView {
             ? true
             : false,
         isFuture: moment(this.viewDate).date() - x < 4 ? true : false,
-        inMonth: true,
+        inMonth:
+          moment(headerLast)
+            .add(x, 'd')
+            .month() === moment(this.viewDate).month()
+            ? true
+            : false,
         isWeekend:
           moment(headerLast)
             .add(x, 'd')
