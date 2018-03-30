@@ -585,7 +585,10 @@ var s=document.querySelector("script[data-namespace='mycomponent']");if(s){publi
         plt.activeRender = true;
         const vnodeChildren = instance.render && instance.render();
         let vnodeHostData;
-        false;
+        true;
+        // user component provided a "hostData()" method
+        // the returned data/attributes are used on the host element
+        vnodeHostData = instance.hostData && instance.hostData();
         // tell the platform we're done rendering
         // now any changes will again queue
         plt.activeRender = false;

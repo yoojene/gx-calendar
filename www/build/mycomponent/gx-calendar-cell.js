@@ -4546,16 +4546,46 @@ class GxCalendarCell {
         }
         this.dayClicked.emit({ event: calendarEvent });
     }
+    /**
+     * Sets the CalendarEvent.cssClass on the host component <newton-calendar-month-view>
+     * To allow specific styles to be passed in
+     */
+    hostData() {
+        if (this.day.events) {
+            this.events = this.day.events.filter(ev => {
+                if (hooks(ev.start).isSame(this.day.date)) {
+                    return ev.cssClass;
+                }
+                else {
+                    return '';
+                }
+            });
+        }
+        if (this.events) {
+            this.events.forEach(mt => {
+                if (hooks(mt.start).isSame(this.day.date)) {
+                    this.cssClass = mt.cssClass;
+                    this.showClass = true;
+                }
+                else {
+                    this.cssClass = '';
+                    this.showClass = false;
+                }
+            });
+            return { class: { [this.cssClass]: this.showClass } };
+        }
+    }
     render() {
         return (h("div", null,
             h("div", { class: "cal-cell-top", onClick: e => this.onDayClick(e, this.day) }, this.badgeTotal ? (h("div", null,
                 h("span", { class: "cal-day-badge", onClick: e => this.onEventClick(e, this.day.date) }, this.day.badgeTotal),
                 ' ',
                 h("span", { class: "cal-day-number" }, hooks(this.day.date).format('D')))) : (h("span", { class: "cal-day-number" }, hooks(this.day.date).format('D')))),
-            h("div", { class: "cal-events" }, this.day.events ? (h("div", null, this.day.events.map(ev => (h("div", { class: "cal-event" }, ev))))) : (h("div", null)))));
+            h("div", { class: "cal-events" }, this.day.events ? (h("div", null, this.day.events.map(ev => (h("div", { class: `cal-event
+                 ${ev.meta.type === `${ev.title}` ? `${ev.meta.class}` : ''}` }))))) : (h("div", null)))));
     }
     static get is() { return "gx-calendar-cell"; }
-    static get properties() { return { "badgeTotal": { "state": true }, "date": { "state": true }, "day": { "type": "Any", "attr": "day" }, "locale": { "type": String, "attr": "locale" }, "onDayClick": { "method": true }, "onEventClick": { "method": true }, "openDay": { "type": "Any", "attr": "open-day" }, "tooltipPlacement": { "type": String, "attr": "tooltip-placement" } }; }
+    static get properties() { return { "badgeTotal": { "state": true }, "date": { "state": true }, "day": { "type": "Any", "attr": "day" }, "events": { "state": true }, "locale": { "type": String, "attr": "locale" }, "onDayClick": { "method": true }, "onEventClick": { "method": true }, "openDay": { "type": "Any", "attr": "open-day" }, "tooltipPlacement": { "type": String, "attr": "tooltip-placement" } }; }
     static get events() { return [{ "name": "highlightDay", "method": "highlightDay", "bubbles": true, "cancelable": true, "composed": true }, { "name": "unhighlightDay", "method": "unhighlightDay", "bubbles": true, "cancelable": true, "composed": true }, { "name": "eventClicked", "method": "eventClicked", "bubbles": true, "cancelable": true, "composed": true }, { "name": "dayClicked", "method": "dayClicked", "bubbles": true, "cancelable": true, "composed": true }]; }
     static get style() { return ".cal-cell-top {\n  min-height: 78px;\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n}\n\n.cal-day-badge {\n  margin-top: 18px;\n  margin-left: 10px;\n  background-color: #b94a48;\n  display: inline-block;\n  min-width: 10px;\n  padding: 3px 7px;\n  font-size: 12px;\n  font-weight: 700;\n  line-height: 1;\n  color: white;\n  text-align: center;\n  white-space: nowrap;\n  vertical-align: middle;\n  border-radius: 10px;\n}"; }
 }
@@ -7245,13 +7275,10 @@ class GxCalendarMonthView {
     }
     // Lifecycle
     componentWillLoad() {
-        console.log('component will Load');
-        console.log(this.events);
         this.refreshHeader();
         this.refreshBody();
     }
     componentDidLoad() {
-        console.log(this.shownavbuttons);
         this.setUpGestures();
     }
     // Listeners
@@ -7262,50 +7289,65 @@ class GxCalendarMonthView {
     // Private
     setUpGestures() {
         const calendar = new hammer(document.getElementById('calMonthView'));
-        calendar.on('swiperight', () => {
-            document.getElementById('calPrevMonthButton').click();
-        });
-        calendar.on('swipeleft', () => {
-            document.getElementById('calNextMonthButton').click();
-        });
+        calendar.get('swipe').set({ direction: hammer.DIRECTION_ALL });
+        switch (this.scrolldir) {
+            case 'H':
+                calendar.on('swiperight', () => {
+                    document.getElementById('calPrevMonthButton').click();
+                });
+                calendar.on('swipeleft', () => {
+                    document.getElementById('calNextMonthButton').click();
+                });
+                break;
+            case 'V':
+                calendar.on('swipedown', () => {
+                    document.getElementById('calPrevMonthButton').click();
+                });
+                calendar.on('swipeup', () => {
+                    document.getElementById('calNextMonthButton').click();
+                });
+                break;
+            default:
+                calendar.on('swiperight', () => {
+                    document.getElementById('calPrevMonthButton').click();
+                });
+                calendar.on('swipeleft', () => {
+                    document.getElementById('calNextMonthButton').click();
+                });
+        }
     }
     refreshHeader() {
-        let monthHeader = [];
-        console.log(hooks(this.viewDate).day());
-        let fom = hooks(this.viewDate).startOf('month');
-        let dowIdx = hooks(fom).day(); // Get weekday index for first of month;
-        this.firstVisibleDate = hooks(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
-        // First day
+        const monthHeader = [];
+        const fom = hooks(this.viewDate).startOf('month');
+        const dowIdx = hooks(fom).day(); // Get weekday index for first of month;
+        this.firstVisibleDate = hooks(fom).subtract(dowIdx - 1, 'd');
         monthHeader.push({
             date: this.firstVisibleDate,
-            isPast: this.firstVisibleDate.dayOfYear() <
-                hooks(this.viewDate).dayOfYear()
+            isPast: this.firstVisibleDate.dayOfYear() < hooks(this.viewDate).dayOfYear()
                 ? true
                 : false,
-            isToday: this.firstVisibleDate.date() === hooks(this.viewDate).date()
+            isToday: this.firstVisibleDate.dayOfYear() === hooks(this.viewDate).dayOfYear()
                 ? true
                 : false,
             isFuture: this.firstVisibleDate.dayOfYear() > this.viewDate.dayOfYear()
                 ? true
                 : false,
-            inMonth: this.firstVisibleDate.month() === this.viewDate.month()
-                ? true
-                : false,
-            isWeekend: this.firstVisibleDate.day() === 0 ||
-                this.firstVisibleDate.day() === 6
+            inMonth: this.firstVisibleDate.month() === this.viewDate.month() ? true : false,
+            outMonth: this.firstVisibleDate.month() === this.viewDate.month() ? false : true,
+            isWeekend: 
+            // tslint:disable-next-line:cyclomatic-complexity
+            this.firstVisibleDate.day() === 0 || this.firstVisibleDate.day() === 6
                 ? true
                 : false,
         });
-        console.log(monthHeader);
         for (let x = 1; x < 7; x++) {
             monthHeader.push({
                 date: hooks(this.firstVisibleDate).add(x, 'd'),
-                isPast: this.firstVisibleDate.dayOfYear() <
-                    hooks(this.viewDate).dayOfYear()
+                isPast: this.firstVisibleDate.dayOfYear() < hooks(this.viewDate).dayOfYear()
                     ? true
                     : false,
-                isToday: hooks(this.viewDate).date() ===
-                    hooks(this.firstVisibleDate).date()
+                isToday: hooks(this.viewDate).dayOfYear() ===
+                    hooks(this.firstVisibleDate).dayOfYear()
                     ? true
                     : false,
                 isFuture: this.firstVisibleDate.dayOfYear() > this.viewDate.dayOfYear()
@@ -7316,6 +7358,11 @@ class GxCalendarMonthView {
                     .month() === hooks(this.viewDate).month()
                     ? true
                     : false,
+                outMonth: hooks(this.firstVisibleDate)
+                    .add(x, 'd')
+                    .month() === hooks(this.viewDate).month()
+                    ? false
+                    : true,
                 isWeekend: hooks(this.firstVisibleDate)
                     .add(x, 'd')
                     .day() === 0 ||
@@ -7326,20 +7373,19 @@ class GxCalendarMonthView {
                     : false,
             });
         }
-        console.log(monthHeader);
         this.columnHeaders = monthHeader;
     }
     refreshBody(date) {
         if (!date) {
-            date = hooks();
+            // tslint:disable-next-line:no-parameter-reassignment
+            date = this.viewDate;
         }
-        let monthDays = [];
+        const monthDays = [];
         this.columnHeaders.forEach(el => {
             monthDays.push(el); // First 7 days.
         });
         // Need total 35 days shown, 5 rows of 7 days
-        console.log(this.firstVisibleDate);
-        let headerLast = this.columnHeaders[6].date; // Last day of the first week
+        const headerLast = this.columnHeaders[6].date; // Last day of the first week
         // Days before today
         for (let x = 1; x < hooks(this.viewDate).daysInMonth(); x++) {
             monthDays.push({
@@ -7349,12 +7395,20 @@ class GxCalendarMonthView {
                     date.format('YYYY MM DD') === hooks().format('YYYY MM DD')
                     ? true
                     : false,
-                isFuture: hooks(this.viewDate).date() - x < 4 ? true : false,
+                isFuture: hooks(this.viewDate).date() - x < 4 // TODO does not work when you go forward / back a month
+                    ? true
+                    : false,
                 inMonth: hooks(headerLast)
                     .add(x, 'd')
                     .month() === hooks(this.viewDate).month()
                     ? true
                     : false,
+                // tslint:disable-next-line:cyclomatic-complexity
+                outMonth: hooks(headerLast)
+                    .add(x, 'd')
+                    .month() === hooks(this.viewDate).month()
+                    ? false
+                    : true,
                 isWeekend: hooks(headerLast)
                     .add(x, 'd')
                     .day() === 0 ||
@@ -7384,25 +7438,27 @@ class GxCalendarMonthView {
     // Public
     prevMonth() {
         this.viewDate = hooks(this.viewDate).subtract(1, 'M');
+        this.monthChangePast.emit(this.viewDate);
         this.refreshHeader();
         this.refreshBody(this.viewDate);
     }
     nextMonth() {
         this.viewDate = hooks(this.viewDate).add(1, 'M');
+        this.monthChangeFuture.emit(this.viewDate);
         this.refreshHeader();
         this.refreshBody(this.viewDate);
     }
     render() {
         return (h("div", { class: "cal-month-view" },
             h("div", { class: "cal-month-view--container" },
-                h("div", { hidden: this.shownavbuttons },
+                h("div", { hidden: !this.shownavbuttons },
                     h("div", { class: "cal-prev-month" },
                         h("button", { id: "calPrevMonthButton", onClick: () => this.prevMonth() },
                             ' ',
                             "Previous Month",
                             ' '))),
                 h("div", { class: "cal-header" }, hooks(this.viewDate).format('MMM GGGG')),
-                h("div", { hidden: this.shownavbuttons },
+                h("div", { hidden: !this.shownavbuttons },
                     h("div", { class: "cal-next-month" },
                         h("button", { id: "calNextMonthButton", onClick: () => this.nextMonth() },
                             ' ',
@@ -7416,6 +7472,8 @@ class GxCalendarMonthView {
                     .map(day => (h("div", { class: `
                     cal-cell
                     ${day.isPast ? ' cal-past' : ''}
+                    ${day.inMonth ? ' cal-in-month' : ''}
+                    ${day.outMonth ? ' cal-out-month' : ''}
                     ${day.isToday ? ' cal-today' : ''}
                     ${day.isFuture ? ' cal-future' : ''}
                     ${day.isWeekend ? ' cal-weekend' : ''}
@@ -7424,8 +7482,8 @@ class GxCalendarMonthView {
                     .slice(rowIdx, rowIdx + 7))))))));
     }
     static get is() { return "gx-calendar-month-view"; }
-    static get properties() { return { "events": { "type": "Any", "attr": "events", "watchCallbacks": ["eventWatchHandler"] }, "firstVisibleDate": { "state": true }, "locale": { "type": String, "attr": "locale" }, "nextMonth": { "method": true }, "prevMonth": { "method": true }, "refreshBody": { "method": true }, "refreshEvents": { "method": true }, "refreshHeader": { "method": true }, "setUpGestures": { "method": true }, "shownavbuttons": { "type": Boolean, "attr": "shownavbuttons" }, "view": { "state": true }, "viewDate": { "state": true } }; }
-    static get events() { return [{ "name": "monthDayClicked", "method": "monthDayClicked", "bubbles": true, "cancelable": true, "composed": true }, { "name": "dayPressed", "method": "dayPressed", "bubbles": true, "cancelable": true, "composed": true }, { "name": "eventClicked", "method": "eventClicked", "bubbles": true, "cancelable": true, "composed": true }, { "name": "eventTimesChanged", "method": "eventTimesChanged", "bubbles": true, "cancelable": true, "composed": true }]; }
+    static get properties() { return { "events": { "type": "Any", "attr": "events", "watchCallbacks": ["eventWatchHandler"] }, "firstVisibleDate": { "state": true }, "locale": { "type": String, "attr": "locale" }, "nextMonth": { "method": true }, "prevMonth": { "method": true }, "refreshBody": { "method": true }, "refreshEvents": { "method": true }, "refreshHeader": { "method": true }, "scrolldir": { "type": "Any", "attr": "scrolldir" }, "setUpGestures": { "method": true }, "shownavbuttons": { "type": Boolean, "attr": "shownavbuttons" }, "view": { "state": true }, "viewDate": { "state": true } }; }
+    static get events() { return [{ "name": "monthDayClicked", "method": "monthDayClicked", "bubbles": true, "cancelable": true, "composed": true }, { "name": "dayPressed", "method": "dayPressed", "bubbles": true, "cancelable": true, "composed": true }, { "name": "eventClicked", "method": "eventClicked", "bubbles": true, "cancelable": true, "composed": true }, { "name": "eventTimesChanged", "method": "eventTimesChanged", "bubbles": true, "cancelable": true, "composed": true }, { "name": "monthChangeFuture", "method": "monthChangeFuture", "bubbles": true, "cancelable": true, "composed": true }, { "name": "monthChangePast", "method": "monthChangePast", "bubbles": true, "cancelable": true, "composed": true }]; }
     static get style() { return ".cal-month-view .cal-header {\n  text-align: center;\n  font-weight: bolder;\n}\n\n.cal-month-view .cal-cell-row:hover {\n  background-color: #fafafa;\n}\n\n.cal-month-view .cal-header .cal-cell {\n  padding: 5px 0;\n  overflow: hidden;\n  -o-text-overflow: ellipsis;\n  text-overflow: ellipsis;\n  display: block;\n  white-space: nowrap;\n}\n\n.cal-month-view .cal-cell-row .cal-cell:hover,\n.cal-month-view .cal-cell.cal-has-events.cal-open {\n  background-color: #ededed;\n}\n\n.cal-month-view .cal-days {\n  border: 1px solid #e1e1e1;\n  border-bottom: 0;\n}\n\n.cal-month-view .cal-cell-top {\n  min-height: 78px;\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n}\n\n.cal-month-view .cal-cell-row {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  -js-display: flex;\n  display: flex;\n  justify-content: space-evenly;\n}\n\n.cal-month-view .cal-cell {\n  float: left;\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  -js-display: flex;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -ms-flex-direction: column;\n  flex-direction: column;\n  -webkit-box-align: stretch;\n  -ms-flex-align: stretch;\n  align-items: stretch;\n}\n\n.cal-month-view .cal-day-cell {\n  min-height: 100px;\n}\n\n.cal-month-view .cal-day-cell:not(:last-child) {\n  border-right: 1px solid #e1e1e1;\n}\n\n.cal-month-view .cal-days .cal-cell-row {\n  border-bottom: 1px solid #e1e1e1;\n}\n\n.cal-month-view .cal-day-badge {\n  margin-top: 18px;\n  margin-left: 10px;\n  background-color: #b94a48;\n  display: inline-block;\n  min-width: 10px;\n  padding: 3px 7px;\n  font-size: 12px;\n  font-weight: 700;\n  line-height: 1;\n  color: white;\n  text-align: center;\n  white-space: nowrap;\n  vertical-align: middle;\n  border-radius: 10px;\n}\n\n.cal-month-view .cal-day-number {\n  font-size: 1.2em;\n  font-weight: 400;\n  opacity: 0.5;\n  margin-top: 15px;\n  margin-right: 15px;\n  float: right;\n  margin-bottom: 10px;\n}\n\n.cal-month-view .cal-events {\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n  -webkit-box-align: end;\n  -ms-flex-align: end;\n  align-items: flex-end;\n  margin: 3px;\n  line-height: 10px;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  -js-display: flex;\n  display: flex;\n  -ms-flex-wrap: wrap;\n  flex-wrap: wrap;\n}\n\n.cal-month-view .cal-event {\n  width: 10px;\n  height: 10px;\n  border-radius: 50%;\n  display: inline-block;\n  margin: 2px;\n}\n\n.cal-month-view .cal-day-cell.cal-in-month.cal-has-events {\n  cursor: pointer;\n}\n\n.cal-month-view .cal-day-cell.cal-out-month .cal-day-number {\n  opacity: 0.1;\n  cursor: default;\n}\n\n/* .cal-month-view .cal-day-cell.cal-weekend .cal-day-number { */\n.cal-month-view .cal-cell.cal-weekend  {\n  color: darkred;\n}\n\n/* .cal-month-view .cal-day-cell.cal-today { */\n.cal-month-view .cal-cell.cal-today {\n  background-color: #e8fde7;\n}\n\n/* .cal-month-view .cal-day-cell.cal-today .cal-day-number { */\n.cal-month-view .cal-cell.cal-today .cal-day-number {\n  font-size: 1.9em;\n}\n\n.cal-month-view .cal-day-cell.cal-drag-over {\n  background-color: #e0e0e0 !important;\n}\n\n.cal-month-view .cal-open-day-events {\n  padding: 15px;\n  color: white;\n  background-color: #555;\n  -webkit-box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.5);\n  box-shadow: inset 0 0 15px 0 rgba(0, 0, 0, 0.5);\n}\n\n.cal-month-view .cal-open-day-events .cal-event {\n  position: relative;\n  top: 2px;\n}\n\n.cal-month-view .cal-event-title {\n  color: white;\n}\n\n.cal-month-view .cal-out-month .cal-day-badge,\n.cal-month-view .cal-out-month .cal-event {\n  opacity: 0.3;\n}\n\n.cal-month-view--container {\n  display: flex;\n  flex: 1;\n  justify-content: space-around;\n}\n/* .cal-prev-month {\n  align-items: flex-start;\n}\n.cal-next-month {\n  align-items: flex-end;\n}\n\n.cal-header {\n  align-content: center;\n} */"; }
 }
 

@@ -77,6 +77,7 @@ declare global {
     export interface GxCalendarMonthViewAttributes extends HTMLAttributes {
       events?: CalendarEvent[];
       locale?: string;
+      scrolldir?: any;
       shownavbuttons?: boolean;
     }
   }

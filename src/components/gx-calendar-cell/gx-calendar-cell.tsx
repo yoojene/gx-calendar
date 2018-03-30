@@ -35,6 +35,10 @@ export class GxCalendarCell {
   @Event() eventClicked: EventEmitter;
   @Event() dayClicked: EventEmitter;
 
+  @State() private events: any;
+  private showClass: boolean;
+  private cssClass: any;
+
   // Lifecycle
 
   componentDidLoad() {
@@ -67,6 +71,35 @@ export class GxCalendarCell {
     this.dayClicked.emit({ event: calendarEvent });
   }
 
+  /**
+   * Sets the CalendarEvent.cssClass on the host component <newton-calendar-month-view>
+   * To allow specific styles to be passed in
+   */
+  public hostData() {
+    if (this.day.events) {
+      this.events = this.day.events.filter(ev => {
+        if (moment(ev.start).isSame(this.day.date)) {
+          return ev.cssClass;
+        } else {
+          return '';
+        }
+      });
+    }
+    if (this.events) {
+      this.events.forEach(mt => {
+        if (moment(mt.start).isSame(this.day.date)) {
+          this.cssClass = mt.cssClass;
+          this.showClass = true;
+        } else {
+          this.cssClass = '';
+          this.showClass = false;
+        }
+      });
+
+      return { class: { [this.cssClass]: this.showClass } };
+    }
+  }
+
   public render() {
     return (
       <div>
@@ -90,19 +123,20 @@ export class GxCalendarCell {
           )}
         </div>
         <div class="cal-events">
-        {this.day.events ? (
-          <div>
-          {this.day.events.map(ev => (
-            <div class="cal-event">
-            {ev}
+          {this.day.events ? (
+            <div>
+              {this.day.events.map(ev => (
+                <div
+                  class={`cal-event
+                 ${ev.meta.type === `${ev.title}` ? `${ev.meta.class}` : ''}`}
+                />
+              ))}
             </div>
-            ))}
-        </div>
           ) : (
-          <div>
-            </div>
+            <div />
           )}
-            </div>
+        </div>
       </div>
-  )}
+    );
+  }
 }

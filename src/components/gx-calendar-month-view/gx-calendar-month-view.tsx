@@ -47,6 +47,12 @@ export class GxCalendarMonthView {
   @Prop() events: CalendarEvent[]; // = EVENTS;
 
   /**
+   *
+   * V or H to toggle vertical or horizontal scroll for calendar months
+   */
+  @Prop() public scrolldir: any;
+
+  /**
    * An array of day indexes (0 = sunday, 1 = monday etc) that will be hidden on the view
    */
   excludeDays: number[] = [];
@@ -90,6 +96,16 @@ export class GxCalendarMonthView {
   @Event() eventTimesChanged: EventEmitter;
 
   /**
+   * Called when month is moved forward in time
+   */
+  @Event() public monthChangeFuture: EventEmitter;
+
+  /**
+   * Called when month is moved back in time
+   */
+  @Event() public monthChangePast: EventEmitter;
+
+  /**
    * @hidden
    */
   columnHeaders: MonthViewDay[];
@@ -131,16 +147,12 @@ export class GxCalendarMonthView {
   }
 
   // Lifecycle
-  componentWillLoad() {
-    console.log('component will Load');
-    console.log(this.events);
-
+  public componentWillLoad() {
     this.refreshHeader();
     this.refreshBody();
   }
 
-  componentDidLoad() {
-    console.log(this.shownavbuttons);
+  public componentDidLoad() {
     this.setUpGestures();
   }
 
@@ -159,36 +171,57 @@ export class GxCalendarMonthView {
   private setUpGestures(): void {
     const calendar = new Hammer(document.getElementById('calMonthView'));
 
-    calendar.on('swiperight', () => {
-      document.getElementById('calPrevMonthButton').click();
-    });
+    calendar.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
 
-    calendar.on('swipeleft', () => {
-      document.getElementById('calNextMonthButton').click();
-    });
+    switch (this.scrolldir) {
+      case 'H':
+        calendar.on('swiperight', () => {
+          document.getElementById('calPrevMonthButton').click();
+        });
+
+        calendar.on('swipeleft', () => {
+          document.getElementById('calNextMonthButton').click();
+        });
+        break;
+
+      case 'V':
+        calendar.on('swipedown', () => {
+          document.getElementById('calPrevMonthButton').click();
+        });
+
+        calendar.on('swipeup', () => {
+          document.getElementById('calNextMonthButton').click();
+        });
+        break;
+
+      default:
+        calendar.on('swiperight', () => {
+          document.getElementById('calPrevMonthButton').click();
+        });
+
+        calendar.on('swipeleft', () => {
+          document.getElementById('calNextMonthButton').click();
+        });
+    }
   }
 
   @Method()
   private refreshHeader(): void {
-    let monthHeader = [];
-    console.log(moment(this.viewDate).day());
+    const monthHeader = [];
 
-    let fom = moment(this.viewDate).startOf('month');
+    const fom = moment(this.viewDate).startOf('month');
 
-    let dowIdx = moment(fom).day(); // Get weekday index for first of month;
+    const dowIdx = moment(fom).day(); // Get weekday index for first of month;
+    this.firstVisibleDate = moment(fom).subtract(dowIdx - 1, 'd');
 
-    this.firstVisibleDate = moment(fom).subtract(dowIdx - 1, 'd'); // should be a Monday
-
-    // First day
     monthHeader.push({
       date: this.firstVisibleDate,
       isPast:
-        this.firstVisibleDate.dayOfYear() <
-        moment(this.viewDate).dayOfYear()
+        this.firstVisibleDate.dayOfYear() < moment(this.viewDate).dayOfYear()
           ? true
           : false,
       isToday:
-        this.firstVisibleDate.date() === moment(this.viewDate).date()
+        this.firstVisibleDate.dayOfYear() === moment(this.viewDate).dayOfYear()
           ? true
           : false,
       isFuture:
@@ -196,28 +229,26 @@ export class GxCalendarMonthView {
           ? true
           : false,
       inMonth:
-        this.firstVisibleDate.month() === this.viewDate.month()
-          ? true
-          : false,
+        this.firstVisibleDate.month() === this.viewDate.month() ? true : false,
+      outMonth:
+        this.firstVisibleDate.month() === this.viewDate.month() ? false : true,
       isWeekend:
-        this.firstVisibleDate.day() === 0 ||
-        this.firstVisibleDate.day() === 6
+        // tslint:disable-next-line:cyclomatic-complexity
+        this.firstVisibleDate.day() === 0 || this.firstVisibleDate.day() === 6
           ? true
           : false,
     });
-    console.log(monthHeader);
 
     for (let x = 1; x < 7; x++) {
       monthHeader.push({
         date: moment(this.firstVisibleDate).add(x, 'd'),
         isPast:
-          this.firstVisibleDate.dayOfYear() <
-          moment(this.viewDate).dayOfYear()
+          this.firstVisibleDate.dayOfYear() < moment(this.viewDate).dayOfYear()
             ? true
             : false,
         isToday:
-          moment(this.viewDate).date() ===
-          moment(this.firstVisibleDate).date()
+          moment(this.viewDate).dayOfYear() ===
+          moment(this.firstVisibleDate).dayOfYear()
             ? true
             : false,
         isFuture:
@@ -230,6 +261,12 @@ export class GxCalendarMonthView {
             .month() === moment(this.viewDate).month()
             ? true
             : false,
+        outMonth:
+          moment(this.firstVisibleDate)
+            .add(x, 'd')
+            .month() === moment(this.viewDate).month()
+            ? false
+            : true,
         isWeekend:
           moment(this.firstVisibleDate)
             .add(x, 'd')
@@ -241,44 +278,51 @@ export class GxCalendarMonthView {
             : false,
       });
     }
-    console.log(monthHeader);
-
     this.columnHeaders = monthHeader;
   }
 
   @Method()
-  private refreshBody(date?: Moment): void {
+  private refreshBody(date?: any): void {
     if (!date) {
-      date = moment();
+      // tslint:disable-next-line:no-parameter-reassignment
+      date = this.viewDate;
     }
-    let monthDays = [];
+    const monthDays = [];
 
     this.columnHeaders.forEach(el => {
       monthDays.push(el); // First 7 days.
     });
 
     // Need total 35 days shown, 5 rows of 7 days
-    console.log(this.firstVisibleDate);
-
-    let headerLast = this.columnHeaders[6].date; // Last day of the first week
+    const headerLast = this.columnHeaders[6].date; // Last day of the first week
 
     // Days before today
     for (let x = 1; x < moment(this.viewDate).daysInMonth(); x++) {
       monthDays.push({
         date: moment(headerLast).add(x, 'd'),
-        isPast: moment(this.viewDate).date() - x > 4 ? true : false,
+        isPast: moment(this.viewDate).date() - x > 4 ? true : false, // TODO does not work when you go forward / back a month
         isToday:
           moment(this.viewDate).date() - x === 4 &&
           date.format('YYYY MM DD') === moment().format('YYYY MM DD')
             ? true
             : false,
-        isFuture: moment(this.viewDate).date() - x < 4 ? true : false,
+        isFuture:
+          moment(this.viewDate).date() - x < 4 // TODO does not work when you go forward / back a month
+            ? true
+            : false,
         inMonth:
           moment(headerLast)
             .add(x, 'd')
             .month() === moment(this.viewDate).month()
             ? true
             : false,
+        // tslint:disable-next-line:cyclomatic-complexity
+        outMonth:
+          moment(headerLast)
+            .add(x, 'd')
+            .month() === moment(this.viewDate).month()
+            ? false
+            : true,
         isWeekend:
           moment(headerLast)
             .add(x, 'd')
@@ -290,6 +334,7 @@ export class GxCalendarMonthView {
             : false,
       });
     }
+
     this.view.days = monthDays;
 
     this.refreshEvents();
@@ -315,6 +360,7 @@ export class GxCalendarMonthView {
   @Method()
   public prevMonth() {
     this.viewDate = moment(this.viewDate).subtract(1, 'M');
+    this.monthChangePast.emit(this.viewDate);
     this.refreshHeader();
     this.refreshBody(this.viewDate);
   }
@@ -322,6 +368,7 @@ export class GxCalendarMonthView {
   @Method()
   public nextMonth() {
     this.viewDate = moment(this.viewDate).add(1, 'M');
+    this.monthChangeFuture.emit(this.viewDate);
     this.refreshHeader();
     this.refreshBody(this.viewDate);
   }
@@ -330,7 +377,7 @@ export class GxCalendarMonthView {
     return (
       <div class="cal-month-view">
         <div class="cal-month-view--container">
-          <div hidden={this.shownavbuttons}>
+          <div hidden={!this.shownavbuttons}>
             <div class="cal-prev-month">
               <button id="calPrevMonthButton" onClick={() => this.prevMonth()}>
                 {' '}
@@ -341,7 +388,7 @@ export class GxCalendarMonthView {
           <div class="cal-header">
             {moment(this.viewDate).format('MMM GGGG')}
           </div>
-          <div hidden={this.shownavbuttons}>
+          <div hidden={!this.shownavbuttons}>
             <div class="cal-next-month">
               <button id="calNextMonthButton" onClick={() => this.nextMonth()}>
                 {' '}
@@ -368,6 +415,8 @@ export class GxCalendarMonthView {
                       class={`
                     cal-cell
                     ${day.isPast ? ' cal-past' : ''}
+                    ${day.inMonth ? ' cal-in-month' : ''}
+                    ${day.outMonth ? ' cal-out-month' : ''}
                     ${day.isToday ? ' cal-today' : ''}
                     ${day.isFuture ? ' cal-future' : ''}
                     ${day.isWeekend ? ' cal-weekend' : ''}
