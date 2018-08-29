@@ -75,10 +75,13 @@ declare global {
   }
   namespace JSXElements {
     export interface GxCalendarMonthViewAttributes extends HTMLAttributes {
+      customHeader?: boolean;
       events?: CalendarEvent[];
       locale?: string;
       scrolldir?: any;
+      setViewDate?: any;
       shownavbuttons?: boolean;
+      weeksToShow?: number;
     }
   }
 }

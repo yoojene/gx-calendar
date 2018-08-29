@@ -671,7 +671,17 @@ var s=document.querySelector("script[data-namespace='mycomponent']");if(s){publi
           plt.onError(e, 3 /* WillLoadError */ , elm);
         }
       } else {
-        false;
+        true;
+        // already created an instance and this is an update
+        // fire off the user's componentWillUpdate method (if one was provided)
+        // componentWillUpdate runs BEFORE render() has been called
+        // but only BEFORE an UPDATE and not before the intial render
+        // get the returned promise (if one was provided)
+        try {
+          instance.componentWillUpdate && (userPromise = instance.componentWillUpdate());
+        } catch (e) {
+          plt.onError(e, 5 /* WillUpdateError */ , elm);
+        }
       }
       userPromise && userPromise.then ? 
       // looks like the user return a promise!
@@ -690,9 +700,17 @@ var s=document.querySelector("script[data-namespace='mycomponent']");if(s){publi
     // _hasRendered was just set
     // _onRenderCallbacks were all just fired off
         try {
-      !!isInitialLoad && 
-      // so this was the initial load i guess
-      elm.$initLoad();
+      if (isInitialLoad) {
+        // so this was the initial load i guess
+        elm.$initLoad();
+        // componentDidLoad just fired off
+            } else {
+        true;
+        // fire off the user's componentDidUpdate method (if one was provided)
+        // componentDidUpdate runs AFTER render() has been called
+        // but only AFTER an UPDATE and not after the intial render
+        instance.componentDidUpdate && instance.componentDidUpdate();
+      }
     } catch (e) {
       // derp
       plt.onError(e, 6 /* DidUpdateError */ , elm, true);
@@ -750,17 +768,19 @@ var s=document.querySelector("script[data-namespace='mycomponent']");if(s){publi
       // add getter/setter to the component instance
       // these will be pointed to the internal data set from the above checks
             definePropertyGetterSetter(instance, memberName, getComponentProp, setComponentProp);
+    } else if (true, property.elementRef) {
+      // @Element()
+      // add a getter to the element reference using
+      // the member name the component meta provided
+      definePropertyValue(instance, memberName, elm);
+    } else if (true, property.method) {
+      // @Method()
+      // add a property "value" on the host element
+      // which we'll bind to the instance's method
+      definePropertyValue(elm, memberName, instance[memberName].bind(instance));
     } else {
       false;
-      if (true, property.method) {
-        // @Method()
-        // add a property "value" on the host element
-        // which we'll bind to the instance's method
-        definePropertyValue(elm, memberName, instance[memberName].bind(instance));
-      } else {
-        false;
-        false;
-      }
+      false;
     }
   }
   function setValue(plt, elm, memberName, newVal, values, instance, watchMethods) {

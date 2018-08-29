@@ -28,7 +28,11 @@ export class GxCalendarMonthView {
   /**
    * The current view date
    */
-  @State() viewDate: Moment = moment();
+  @State()
+  viewDate: Moment = moment();
+
+  @Prop({ mutable: true })
+  public setViewDate: any = null;
 
   /**
    * The first date visible on a given month
@@ -36,7 +40,8 @@ export class GxCalendarMonthView {
    * @type {Moment}
    * @memberof GxCalendarMonthView
    */
-  @State() firstVisibleDate: Moment;
+  @State()
+  firstVisibleDate: Moment;
 
   // @State() monthDays: any[] = [];
 
@@ -44,13 +49,21 @@ export class GxCalendarMonthView {
    * An array of events to display on view
    * TBC
    */
-  @Prop() events: CalendarEvent[]; // = EVENTS;
+  @Prop()
+  events: CalendarEvent[]; // = EVENTS;
 
   /**
    *
    * V or H to toggle vertical or horizontal scroll for calendar months
    */
-  @Prop() public scrolldir: any;
+  @Prop()
+  public scrolldir: any;
+
+  /**
+   * 4, 6, 7 or 8 to control number of rows (weeks) shown per month.  Default is 5
+   */
+  @Prop()
+  public weeksToShow: number;
 
   /**
    * An array of day indexes (0 = sunday, 1 = monday etc) that will be hidden on the view
@@ -60,7 +73,8 @@ export class GxCalendarMonthView {
   /**
    * The locale used to format dates
    */
-  @Prop() locale: string;
+  @Prop()
+  locale: string;
 
   /**
    * Visibility of previous and next month buttons
@@ -68,7 +82,14 @@ export class GxCalendarMonthView {
    * @type {boolean}
    * @memberof GxCalendarMonthView
    */
-  @Prop() shownavbuttons: boolean;
+  @Prop()
+  shownavbuttons: boolean;
+
+  /**
+   * Visibility of previous and next month buttons
+   */
+  @Prop()
+  public customHeader: boolean;
 
   /**
    * The start number of the week
@@ -78,32 +99,44 @@ export class GxCalendarMonthView {
   /**
    * Called when the month day cell is clicked
    */
-  @Event() monthDayClicked: EventEmitter;
+  @Event()
+  monthDayClicked: EventEmitter;
   /**
    *
    * Called when the day cell is pressed
    */
-  @Event() dayPressed: EventEmitter;
+  @Event()
+  dayPressed: EventEmitter;
 
   /**
    * Called when the event title is clicked
    */
-  @Event() eventClicked: EventEmitter;
+  @Event()
+  eventClicked: EventEmitter;
 
   /**
    * Called when an event is dragged and dropped
    */
-  @Event() eventTimesChanged: EventEmitter;
+  @Event()
+  eventTimesChanged: EventEmitter;
 
   /**
    * Called when month is moved forward in time
    */
-  @Event() public monthChangeFuture: EventEmitter;
+  @Event()
+  public monthChangeFuture: EventEmitter;
 
   /**
    * Called when month is moved back in time
    */
-  @Event() public monthChangePast: EventEmitter;
+  @Event()
+  public monthChangePast: EventEmitter;
+
+  /**
+   * Displays current days' events
+   */
+  @Event()
+  public todaysCalendarEvents: EventEmitter;
 
   /**
    * @hidden
@@ -148,12 +181,28 @@ export class GxCalendarMonthView {
 
   // Lifecycle
   public componentWillLoad() {
+    moment.locale(this.locale);
+
+    if (this.setViewDate) {
+      this.setViewDate = moment(this.setViewDate);
+      this.viewDate = this.setViewDate;
+    } else {
+      this.viewDate = moment();
+    }
+    if (this.weeksToShow) {
+      this.setupWeeksToShow();
+    }
     this.refreshHeader();
     this.refreshBody();
   }
 
   public componentDidLoad() {
     this.setUpGestures();
+  }
+
+  public componentWillUpdate() {
+    this.refreshHeader();
+    this.refreshBody();
   }
 
   // Listeners
@@ -165,8 +214,12 @@ export class GxCalendarMonthView {
     this.monthDayClicked.emit(day.detail);
   }
 
-  // Private
+  @Listen('showTodaysEvents')
+  public todaysEventsHandler(calendarDay: CustomEvent) {
+    this.todaysCalendarEvents.emit(calendarDay);
+  }
 
+  // Private
   @Method()
   private setUpGestures(): void {
     const calendar = new Hammer(document.getElementById('calMonthView'));
@@ -210,9 +263,12 @@ export class GxCalendarMonthView {
     const monthHeader = [];
 
     const fom = moment(this.viewDate).startOf('month');
-
     const dowIdx = moment(fom).day(); // Get weekday index for first of month;
     this.firstVisibleDate = moment(fom).subtract(dowIdx - 1, 'd');
+
+    if (dowIdx === 0) {
+      this.firstVisibleDate = moment(this.viewDate).startOf('month');
+    }
 
     monthHeader.push({
       date: this.firstVisibleDate,
@@ -243,16 +299,22 @@ export class GxCalendarMonthView {
       monthHeader.push({
         date: moment(this.firstVisibleDate).add(x, 'd'),
         isPast:
-          this.firstVisibleDate.dayOfYear() < moment(this.viewDate).dayOfYear()
+          moment(this.firstVisibleDate)
+            .add(x, 'd')
+            .dayOfYear() < moment(this.viewDate).dayOfYear()
             ? true
             : false,
         isToday:
           moment(this.viewDate).dayOfYear() ===
-          moment(this.firstVisibleDate).dayOfYear()
+          moment(this.firstVisibleDate)
+            .add(x, 'd')
+            .dayOfYear()
             ? true
             : false,
         isFuture:
-          this.firstVisibleDate.dayOfYear() > this.viewDate.dayOfYear()
+          moment(this.firstVisibleDate)
+            .add(x, 'd')
+            .dayOfYear() > this.viewDate.dayOfYear()
             ? true
             : false,
         inMonth:
@@ -282,6 +344,25 @@ export class GxCalendarMonthView {
   }
 
   @Method()
+  private setupWeeksToShow() {
+    switch (this.weeksToShow) {
+      case 4:
+        this.view.rowOffsets.pop();
+        break;
+      case 6:
+        this.view.rowOffsets.push(35);
+        break;
+      case 7:
+        this.view.rowOffsets.push(35, 42);
+        break;
+      case 8:
+        this.view.rowOffsets.push(35, 42, 49);
+        break;
+      default:
+    }
+  }
+
+  @Method()
   private refreshBody(date?: any): void {
     if (!date) {
       // tslint:disable-next-line:no-parameter-reassignment
@@ -297,13 +378,35 @@ export class GxCalendarMonthView {
     const headerLast = this.columnHeaders[6].date; // Last day of the first week
 
     // Days before today
-    for (let x = 1; x < moment(this.viewDate).daysInMonth(); x++) {
+    for (let x = 1; x < 50; x++) {
+      // Never more than 50 days shown per month
       monthDays.push({
         date: moment(headerLast).add(x, 'd'),
         isPast: moment(this.viewDate).date() - x > 4 ? true : false, // TODO does not work when you go forward / back a month
+        isDateSetted:
+          moment(this.setViewDate)
+            .startOf('day')
+            .unix() ===
+          moment(headerLast)
+            .add(x, 'd')
+            .startOf('day')
+            .unix()
+            ? true
+            : false,
         isToday:
-          moment(this.viewDate).date() - x === 4 &&
-          date.format('YYYY MM DD') === moment().format('YYYY MM DD')
+          moment(this.viewDate)
+            .startOf('day')
+            .unix() ===
+            moment(headerLast)
+              .add(x, 'd')
+              .startOf('day')
+              .unix() &&
+          moment(this.viewDate)
+            .startOf('day')
+            .unix() ===
+            moment()
+              .startOf('day')
+              .unix()
             ? true
             : false,
         isFuture:
@@ -337,17 +440,21 @@ export class GxCalendarMonthView {
 
     this.view.days = monthDays;
 
-    this.refreshEvents();
+    if (this.events) {
+      this.refreshEvents();
+    }
   }
 
   @Method()
   private refreshEvents(): void {
     for (let x = 0; x < this.view.days.length; x++) {
       this.events.forEach(ev => {
-        if (moment(ev.start).isSame(this.view.days[x].date.startOf('day'))) {
+        if (this.view.days[x].date.isBetween(ev.start, ev.end, null, '[]')) {
           if (!this.view.days[x].events) {
             this.view.days[x].events = [];
           }
+
+          this.events.sort((a, b) => a.meta.order - b.meta.order);
           this.view.days[x].events = [...this.view.days[x].events, ev];
         }
       });
@@ -361,16 +468,12 @@ export class GxCalendarMonthView {
   public prevMonth() {
     this.viewDate = moment(this.viewDate).subtract(1, 'M');
     this.monthChangePast.emit(this.viewDate);
-    this.refreshHeader();
-    this.refreshBody(this.viewDate);
   }
 
   @Method()
   public nextMonth() {
     this.viewDate = moment(this.viewDate).add(1, 'M');
     this.monthChangeFuture.emit(this.viewDate);
-    this.refreshHeader();
-    this.refreshBody(this.viewDate);
   }
 
   public render() {
@@ -394,6 +497,21 @@ export class GxCalendarMonthView {
                 {' '}
                 Next Month{' '}
               </button>
+            </div>
+          </div>
+        </div>
+        <div hidden={!this.customHeader} class="cal-month-view--container">
+          <div hidden={!this.shownavbuttons}>
+            <div onClick={() => this.prevMonth()}>
+              <slot name="prev-month-button" />
+            </div>
+          </div>
+          <div class="cal-header">
+            {moment(this.viewDate).format('MMM GGGG')}
+          </div>
+          <div hidden={!this.shownavbuttons}>
+            <div onClick={() => this.nextMonth()}>
+              <slot name="next-month-button" />
             </div>
           </div>
         </div>

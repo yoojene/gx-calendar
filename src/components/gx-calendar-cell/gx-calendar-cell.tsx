@@ -5,6 +5,7 @@ import {
   EventEmitter,
   State,
   Method,
+  Element,
 } from '@stencil/core';
 
 import {
@@ -34,6 +35,9 @@ export class GxCalendarCell {
   @Event() unhighlightDay: EventEmitter;
   @Event() eventClicked: EventEmitter;
   @Event() dayClicked: EventEmitter;
+  @Event() public showTodaysEvents: EventEmitter;
+
+  @Element() public cell: HTMLElement;
 
   @State() private events: any;
   private showClass: boolean;
@@ -41,8 +45,22 @@ export class GxCalendarCell {
 
   // Lifecycle
 
-  componentDidLoad() {
-    // this.badgeTotal = 50;
+  public componentDidLoad() {
+    if (this.day.isDateSetted) {
+      this.cell.classList.add('start-date');
+    }
+  }
+
+  public componentDidUpdate() {
+    if (this.day.isDateSetted) {
+      this.cell.classList.add('start-date');
+    } else {
+      this.cell.classList.remove('start-date');
+    }
+
+    if (moment(this.day.date).isSame(moment().startOf('day'))) {
+      this.showTodaysEvents.emit({ calendarDay: this.day });
+    }
   }
 
   // Public
@@ -78,7 +96,7 @@ export class GxCalendarCell {
   public hostData() {
     if (this.day.events) {
       this.events = this.day.events.filter(ev => {
-        if (moment(ev.start).isSame(this.day.date)) {
+        if (moment(this.day.date).isBetween(ev.start, ev.end, null, '[]')) {
           return ev.cssClass;
         } else {
           return '';
@@ -87,7 +105,7 @@ export class GxCalendarCell {
     }
     if (this.events) {
       this.events.forEach(mt => {
-        if (moment(mt.start).isSame(this.day.date)) {
+        if (moment(this.day.date).isBetween(mt.start, mt.end, null, '[]')) {
           this.cssClass = mt.cssClass;
           this.showClass = true;
         } else {
@@ -103,6 +121,11 @@ export class GxCalendarCell {
   public render() {
     return (
       <div>
+        <div class='cal-events'>
+          {this.day.events ? <div>
+            {this.day.events.map(ev => <span class={`cal-event ${ev.meta.class}`} />)}
+          </div> : <div />}
+        </div>
         <div class="cal-cell-top" onClick={e => this.onDayClick(e, this.day)}>
           {this.badgeTotal ? (
             <div>
