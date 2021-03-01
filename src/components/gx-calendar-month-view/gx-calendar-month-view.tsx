@@ -490,6 +490,7 @@ export class GxCalendarMonthView {
           </div>
           <div class="cal-header">
             {moment(this.viewDate).format('MMM GGGG')}
+
           </div>
           <div hidden={!this.shownavbuttons}>
             <div class="cal-next-month">
@@ -507,7 +508,6 @@ export class GxCalendarMonthView {
             </div>
           </div>
           <div class="cal-header">
-            {moment(this.viewDate).format('MMM GGGG')}
           </div>
           <div hidden={!this.shownavbuttons}>
             <div onClick={() => this.nextMonth()}>
